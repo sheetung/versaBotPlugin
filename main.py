@@ -32,30 +32,30 @@ class CommandExecutorPlugin(BasePlugin):
             receive_text = ctx.event.text_message
             cleaned_text = re.sub(r'@\S+\s*', '', receive_text).strip()  # 清理文本
 
-            if cleaned_text.startswith('/'):  # 检查是否为命令
-                parts = cleaned_text[1:].split(' ', 1)  # 分割命令和参数
-                command = parts[0]
-                args = parts[1] if len(parts) > 1 else ''
+            # 去掉了 startswith('/') 的判断
+            parts = cleaned_text.split(' ', 1)  # 分割命令和参数
+            command = parts[0]
+            args = parts[1] if len(parts) > 1 else ''
 
-                script_path = os.path.join(os.path.dirname(__file__), 'data', f"{command}.py")
+            script_path = os.path.join(os.path.dirname(__file__), 'data', f"{command}.py")
 
-                if os.path.exists(script_path):  # 检查脚本是否存在
-                    try:
-                        result = subprocess.check_output(['python', script_path, args], text=True, timeout=60)  # 设置超时为60秒
-                        messages = self.convert_message(result)  # 转换输出消息格式
-                        ctx.add_return("reply", messages)  # 返回处理后的消息
-                    except subprocess.CalledProcessError as e:  # 捕获脚本执行错误
-                        ctx.add_return("reply", [f"执行失败: {e.output}"])  # 返回错误消息
-                    except Exception as e:  # 捕获其他异常
-                        ctx.add_return("reply", [f"发生错误: {str(e)}"])  # 返回通用错误消息
-                    ctx.prevent_default()  # 防止后续处理
-                # else 分支已删除
+            if os.path.exists(script_path):  # 检查脚本是否存在
+                try:
+                    result = subprocess.check_output(['python', script_path, args], text=True, timeout=60)  # 设置超时为60秒
+                    messages = self.convert_message(result)  # 转换输出消息格式
+                    ctx.add_return("reply", messages)  # 返回处理后的消息
+                except subprocess.CalledProcessError as e:  # 捕获脚本执行错误
+                    ctx.add_return("reply", [f"执行失败: {e.output}"])  # 返回错误消息
+                except Exception as e:  # 捕获其他异常
+                    ctx.add_return("reply", [f"发生错误: {str(e)}"])  # 返回通用错误消息
+                ctx.prevent_default()  # 防止后续处理
+            
 
     def convert_message(self, message):
         parts = []
         last_end = 0
         image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
-        
+
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             start, end = match.span()  # 获取匹配的起止位置
             if start > last_end:  # 如果有文本在图像之前
