@@ -43,7 +43,6 @@ class CommandExecutorPlugin(BasePlugin):
             print(cleaned_text)
             # 去掉了 startswith('/') 的判断
             parts = cleaned_text.split(' ', 1)  # 分割命令和参数
-            print(parts[0])
             command = parts[0]
             args = parts[1] if len(parts) > 1 else ''
 
