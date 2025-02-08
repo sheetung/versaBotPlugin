@@ -45,9 +45,9 @@ class CommandExecutorPlugin(BasePlugin):
                     messages = self.convert_message(result)  # 转换输出消息格式
                     ctx.add_return("reply", messages)  # 返回处理后的消息
                 except subprocess.CalledProcessError as e:  # 捕获脚本执行错误
-                    ctx.add_return("reply", [f"执行失败: {e.output}"])  # 返回错误消息
+                    ctx.add_return("reply", [f"执行失败喵: {e.output}"])  # 返回错误消息
                 except Exception as e:  # 捕获其他异常
-                    ctx.add_return("reply", [f"发生错误: {str(e)}"])  # 返回通用错误消息
+                    ctx.add_return("reply", [f"发生错误了喵: {str(e)}"])  # 返回通用错误消息
                 ctx.prevent_default()  # 防止后续处理
             
 
