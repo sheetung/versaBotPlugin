@@ -25,6 +25,8 @@ async def main():
     else:
         menu = generate_menu(py_files)
         print(menu)
+        print("---")
+        print("要跟我对话，'ai'唤醒我~")
 
 if __name__ == "__main__":
     import asyncio

@@ -16,7 +16,6 @@ async def get_weather(city: str):
             weather_data = data['data']
             air_data = data['air']
             weather_info = (
-                f"atper_on\n"
                 f"城市: {data['city']}\n"
                 f"日期: {weather_data['date']}\n"
                 f"星期: {weather_data['week']}\n"

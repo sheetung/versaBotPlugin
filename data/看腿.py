@@ -22,11 +22,11 @@ async def fetch_color_image():
 
 async def main():
     image_url = await fetch_color_image()
-    if image_url:
+    if image_url and image_url.startswith("http"):
         markdown_image_link = f"![Anime Image]({image_url})"  # 转换为 Markdown 格式
         print(markdown_image_link)  # 打印 Markdown 图片链接
     else:
-        print("可能这张图被吞了~再试试吧")  # 提示没有找到图片
+        print(image_url)  # 打印错误信息
 
 if __name__ == "__main__":
     asyncio.run(main())
