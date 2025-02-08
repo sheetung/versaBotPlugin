@@ -16,7 +16,7 @@ async def get_weather(city: str):
             weather_data = data['data']
             air_data = data['air']
             weather_info = (
-                f"atper_on"
+                f"atper_on\n"
                 f"城市: {data['city']}\n"
                 f"日期: {weather_data['date']}\n"
                 f"星期: {weather_data['week']}\n"
@@ -32,7 +32,7 @@ async def get_weather(city: str):
             return "获取天气信息失败，请检查城市名称或稍后再试。"
 
 async def main():
-    city = sys.argv[1] if len(sys.argv) > 1 else "北京"  # 默认城市为北京
+    city = sys.argv[1] if len(sys.argv) > 1 else "贵阳"  # 默认城市为北京
     weather_info = await get_weather(city)
     print(weather_info)
 
