@@ -16,7 +16,7 @@ async def fetch_color_image():
             else:
                 return None
     except httpx.RequestError as e:
-        return ("请求失败啦，稍后再试吧\n")
+        return ("请求失败啦，稍后再试吧")
     except Exception as e:
         return f"发生未知错误: {str(e)}"
 
