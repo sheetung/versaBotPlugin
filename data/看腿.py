@@ -12,9 +12,9 @@ async def fetch_color_image():
                 if response_data.get("code") == 200:
                     return response_data.get("url")  # 返回图片的 URL
                 else:
-                    return "API 返回了非成功状态码。可能是链接无效或服务器端问题。"
+                    return None
             else:
-                return f"请求失败，状态码: {response.status_code}。可能是网络问题或链接无效。"
+                return None
     except httpx.RequestError as e:
         return ("请求失败啦，稍后再试吧\n")
     except Exception as e:

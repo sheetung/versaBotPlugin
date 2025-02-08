@@ -25,9 +25,11 @@ def get_bing_image_url(day=0, size=None):
 def main():
     # 获取今天的图片，使用默认大小
     image_url = get_bing_image_url(day=0, size="1920×1080")
-    if image_url:
-        markdown_image_link = f"![Bing Image]({image_url})"
-        print(markdown_image_link)
+    if image_url and image_url.startswith("http"):
+        markdown_image_link = f"![Anime Image]({image_url})"  # 转换为 Markdown 格式
+        print(markdown_image_link)  # 打印 Markdown 图片链接
+    else:
+        print(image_url)  # 打印错误信息
 
 if __name__ == "__main__":
     main()
