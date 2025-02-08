@@ -40,7 +40,6 @@ class CommandExecutorPlugin(BasePlugin):
             # receive_text = ctx.event.text_message
             msg = str(ctx.event.message_chain).strip()
             cleaned_text = re.sub(r'@\S+\s*', '', msg).strip()  # 清理文本
-            print(cleaned_text)
             # 去掉了 startswith('/') 的判断
             parts = cleaned_text.split(' ', 1)  # 分割命令和参数
             command = parts[0]
