@@ -6,7 +6,7 @@ import re
 import asyncio  # 导入 asyncio
 from mirai import Image, Plain
 
-@register(name="小程序运行插件", description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", version="0.1", author="小馄饨")
+@register(name="小程序运行插件", description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", version="0.2", author="sheetung")
 class CommandExecutorPlugin(BasePlugin):
     lock = asyncio.Lock()  # 创建一个锁以确保线程安全
     command_queue = asyncio.Queue()  # 创建一个队列以存储待处理的命令
