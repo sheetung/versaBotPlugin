@@ -5,6 +5,7 @@ import os
 import re
 import asyncio  # 导入 asyncio
 from mirai import Image, Plain
+from pkg.platform.types import *
 
 @register(name="小程序运行插件", description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", version="0.2", author="sheetung")
 class CommandExecutorPlugin(BasePlugin):
@@ -37,12 +38,31 @@ class CommandExecutorPlugin(BasePlugin):
             command = parts[0]
             args = parts[1] if len(parts) > 1 else ''
 
+             # 获取发送者信息
+            sender_id = "Unknown"
+
+            if hasattr(ctx.event, 'query'):
+                message_event = ctx.event.query.message_event
+                if hasattr(message_event, 'sender'):
+                    sender = message_event.sender
+                    # 优先使用qq id
+                    if hasattr(sender, 'id') and sender.id:
+                        sender_id = sender.id
+                    elif hasattr(sender, 'card') and sender.card:
+                        sender_id = sender.card
+                    # 其次使用群昵称
+                    elif hasattr(sender, 'member_name') and sender.member_name:
+                        sender_id = sender.member_name
+                    # 最后使用QQ昵称
+                    elif hasattr(sender, 'nickname') and sender.nickname:
+                        sender_id = sender.nickname
+
             script_path = os.path.join(os.path.dirname(__file__), 'data', f"{command}.py")
 
             if os.path.exists(script_path):  # 检查脚本是否存在
                 try:
                     result = subprocess.check_output(['python', script_path, args], text=True, timeout=60)  # 设置超时为60秒
-                    messages = self.convert_message(result)  # 转换输出消息格式
+                    messages = self.convert_message(result, sender_id)  # 转换输出消息格式
                     ctx.add_return("reply", messages)  # 返回处理后的消息
                 except subprocess.CalledProcessError as e:  # 捕获脚本执行错误
                     ctx.add_return("reply", [f"执行失败喵: {e.output}"])  # 返回错误消息
@@ -51,10 +71,14 @@ class CommandExecutorPlugin(BasePlugin):
                 ctx.prevent_default()  # 防止后续处理
             
 
-    def convert_message(self, message):
+    def convert_message(self, message, sender_id):
         parts = []
         last_end = 0
         image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
+        # 检查消息中是否包含at指令
+        if "send_on" in message:
+            parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
+            message = message.replace("send_on", "")  # 从消息中移除"send_on"
 
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             start, end = match.span()  # 获取匹配的起止位置

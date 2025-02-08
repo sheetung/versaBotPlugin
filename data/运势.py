@@ -27,12 +27,16 @@ def get_horoscope_luck(constellation):
     data = response.json()
     if data["code"] == 200:
         horoscope_info = data["data"]
-        return f"今日{horoscope_info['horoscope']}运势：\n" \
-               f"{horoscope_info['shorts']}\n" \
-               f"整体运势：{horoscope_info['contentAll']}\n" \
-               f"事业运势：{horoscope_info['contentCareer']}\n" \
-               f"财富运势：{horoscope_info['contentFortune']}\n" \
-               f"爱情运势：{horoscope_info['contentLove']}"
+        message = []
+        message.extend([
+                f"今日{horoscope_info['horoscope']}运势：\n",
+                f"{horoscope_info['shorts']}\n",
+                f"整体运势：{horoscope_info['contentAll']}\n",
+                f"事业运势：{horoscope_info['contentCareer']}\n",
+                f"财富运势：{horoscope_info['contentFortune']}\n",
+                f"爱情运势：{horoscope_info['contentLove']}"
+        ])
+        return  message 
     else:
         return "获取星座运势失败，请稍后再试"
 
@@ -41,7 +45,7 @@ def main():
         constellation = sys.argv[1]
     else:
         constellation = input("请输入星座名称：")
-
+    print("send_on")
     print("-" * 20 + "个人运势" + "-" * 20)
     print(get_personal_luck())  # 打印个人运势
 
