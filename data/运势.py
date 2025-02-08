@@ -45,7 +45,7 @@ def main():
         constellation = sys.argv[1]
     else:
         constellation = input("请输入星座名称：")
-    print("send_on")
+    print("atper_on")
     print("-" * 20 + "个人运势" + "-" * 20)
     print(get_personal_luck())  # 打印个人运势
 

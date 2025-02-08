@@ -76,9 +76,9 @@ class CommandExecutorPlugin(BasePlugin):
         last_end = 0
         image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
         # 检查消息中是否包含at指令
-        if "send_on" in message:
+        if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
-            message = message.replace("send_on", "")  # 从消息中移除"send_on"
+            message = message.replace("atper_on", "\n")  # 从消息中移除"send_on"
 
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             start, end = match.span()  # 获取匹配的起止位置
