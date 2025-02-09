@@ -10,7 +10,7 @@ from pkg.platform.types import *
 
 @register(name="小程序运行插件", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
-          version="0.21", 
+          version="0.26", 
           author="sheetung")
 class CommandExecutorPlugin(BasePlugin):
 
@@ -70,7 +70,7 @@ class CommandExecutorPlugin(BasePlugin):
                     messages = self.convert_message(result, sender_id)  # 转换输出消息格式
                     # await ctx.send_message(ctx.event.launcher_type, str(ctx.event.launcher_id), MessageChain(messages))
                     # ctx.add_return("reply", messages)  # 返回处理后的消息
-                    await ctx.reply(MessageChain(messages))
+                    await ctx.reply(messages)
                 except subprocess.CalledProcessError as e:  # 捕获脚本执行错误
                     # ctx.add_return("reply", [f"执行失败喵: {e.output}"])  # 返回错误消息
                     await ctx.reply(MessageChain([Plain(f"执行失败喵~ {e.output}")]))
@@ -78,7 +78,6 @@ class CommandExecutorPlugin(BasePlugin):
                     # ctx.add_return("reply", [f"发生错误了喵: {str(e)}"])  # 返回通用错误消息
                     await ctx.reply(MessageChain([Plain(f"发生错误了喵~ {str(e)}")]))
                 ctx.prevent_default()  # 防止后续处理
-            
 
     def convert_message(self, message, sender_id):
         parts = []
@@ -87,7 +86,7 @@ class CommandExecutorPlugin(BasePlugin):
         # 检查消息中是否包含at指令
         if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
-            message = message.replace("atper_on", "\n\n")  # 从消息中移除"send_on"
+            message = message.replace("atper_on", "\n")  # 从消息中移除"send_on"
 
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             start, end = match.span()  # 获取匹配的起止位置
@@ -96,6 +95,7 @@ class CommandExecutorPlugin(BasePlugin):
             image_url = match.group(1)  # 提取图像 URL
             parts.append(Image(url=image_url))  # 添加图像消息
             last_end = end  # 更新最后结束位置
-        if last_end < len(message):  # 如果还有剩余文本
+        if last_end +1 < len(message):  # 如果还有剩余文本
             parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
+        
         return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
