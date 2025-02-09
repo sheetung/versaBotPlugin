@@ -9,7 +9,7 @@ def get_motou_image_url(qq=None):
         if response.status_code == 200:
             return api_url
         else:
-            print("获取摸头图片失败\n输入的格式是:摸头 @好友 或者摸头 1001")
+            print("获取摸头图片失败\n输入的格式是:摸头@好友 或者摸头 1001")
             return None
     except Exception as e:
         # print(f"发生错误: {e}")
