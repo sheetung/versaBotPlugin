@@ -39,16 +39,14 @@ class CommandExecutorPlugin(BasePlugin):
         async with self.lock:  # 使用锁确保线程安全
             # receive_text = ctx.event.text_message
             msg = str(ctx.event.message_chain).strip()
-            print(msg)
             # cleaned_text = re.sub(r'@\S+\s*', '', msg).strip()  # 清理文本
             # 修改正则表达式，保留 @ 后面的 QQ 号
             cleaned_text = re.sub(r'@(\d+)', r' \1', msg).strip()  # 清理文本，保留 QQ     
-            print(f'cleaned_text={cleaned_text}')
+            cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
             # 去掉了 startswith('/') 的判断
             parts = cleaned_text.split(' ', 1)  # 分割命令和参数
             command = parts[0]
             args = parts[1] if len(parts) > 1 else ''
-            print(f'args={args}')
              # 获取发送者信息
             sender_id = "Unknown"
             if hasattr(ctx.event, 'query'):
