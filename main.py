@@ -79,7 +79,7 @@ class CommandExecutorPlugin(BasePlugin):
                 except Exception as e:  # 捕获其他异常
                     # ctx.add_return("reply", [f"发生错误了喵: {str(e)}"])  # 返回通用错误消息
                     # await ctx.reply(MessageChain([Plain(f"发生错误了喵~ {str(e)}")]))
-                    await ctx.reply(MessageChain([Plain(f"发生错误了喵~{str(e)}")]))
+                    await ctx.reply(MessageChain([Plain(f"发生错误了喵~")]))
                 ctx.prevent_default()  # 防止后续处理
 
     def convert_message(self, message, sender_id):

@@ -26,7 +26,7 @@ async def main():
         menu = generate_menu(py_files)
         print(menu)
         print("---")
-        print("输入 猫猫 唤醒我~")
+        print("输入 任意功能名 唤醒我~")
         print("要跟我对话，'ai'前缀唤醒我~")
 
 if __name__ == "__main__":
