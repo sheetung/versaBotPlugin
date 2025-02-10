@@ -18,10 +18,10 @@ class CommandExecutorPlugin(BasePlugin):
     command_queue = asyncio.Queue()  # 创建一个队列以存储待处理的命令
 
     # @handler(PersonNormalMessageReceived)
-    @handler(PersonMessageReceived)
-    async def person_normal_message_received(self, ctx: EventContext):
-        await self.command_queue.put(ctx)  # 将命令上下文放入队列
-        await self.process_commands()  # 处理命令
+    # @handler(PersonMessageReceived)
+    # async def person_normal_message_received(self, ctx: EventContext):
+    #     await self.command_queue.put(ctx)  # 将命令上下文放入队列
+    #     await self.process_commands()  # 处理命令
 
     # @handler(GroupNormalMessageReceived)
     @handler(GroupMessageReceived)
