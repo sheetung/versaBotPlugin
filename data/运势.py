@@ -11,7 +11,7 @@ def get_personal_luck():
 
         if data["code"] == 200:
             luck_info = data["data"]
-            return f"今日签文：{luck_info['text']}\n"
+            return f"签文：{luck_info['text']}\n"
         else:
             return "获取个人运势失败，请稍后再试。"
     except Exception as e:
@@ -46,11 +46,8 @@ def main():
     else:
         constellation = input("请输入星座名称：")
     print("atper_on")
-    print("-" * 20 + "个人运势" + "-" * 20)
+    print( "今日运势")
     print(get_personal_luck())  # 打印个人运势
-
-    print("-" * 20 + "星座运势" + "-" * 20)
-    print(get_horoscope_luck(constellation))  # 打印星座运势
 
 if __name__ == "__main__":
     main()

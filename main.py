@@ -79,7 +79,7 @@ class CommandExecutorPlugin(BasePlugin):
                 except Exception as e:  # 捕获其他异常
                     # ctx.add_return("reply", [f"发生错误了喵: {str(e)}"])  # 返回通用错误消息
                     # await ctx.reply(MessageChain([Plain(f"发生错误了喵~ {str(e)}")]))
-                    await ctx.reply(MessageChain([Plain(f"发生错误了喵~")]))
+                    await ctx.reply(MessageChain([Plain(f"发生错误了喵~{str(e)}")]))
                 ctx.prevent_default()  # 防止后续处理
 
     def convert_message(self, message, sender_id):
@@ -89,7 +89,7 @@ class CommandExecutorPlugin(BasePlugin):
         # 检查消息中是否包含at指令
         if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
-            message = message.replace("atper_on", "\n")  # 从消息中移除"send_on"
+            message = message.replace("atper_on", "")  # 从消息中移除"send_on"
 
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             start, end = match.span()  # 获取匹配的起止位置
