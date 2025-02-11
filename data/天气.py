@@ -26,6 +26,7 @@ async def get_weather(city: str):
                 f"空气质量: {air_data['aqi_name']} (AQI: {air_data['aqi']})\n"
                 f"提示: {data['tip']}"
             )
+            
             return weather_info
         else:
             return "获取天气信息失败，请检查城市名称或稍后再试。"
