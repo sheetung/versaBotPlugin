@@ -1,10 +1,6 @@
-# XiaocxPlugin
+# versaBot
 
-
-
-更新了文档对部分小插件的使用讲解和图片示例
-
-参考大佬[sanxianxiaohuntun/XiaocxPlugin](https://github.com/sanxianxiaohuntun/XiaocxPlugin)
+可在data目录下编写自己的小插件的插件，示例可参考data目录下代码
 
 ## 安装
 
@@ -43,4 +39,6 @@ if cleaned_text.startswith('/'):  # 检查是否为命令
 
 ## 更新日志
 
-V0.26 优化`main.py`对消息的消息处理，对纯图片消息优化
+v0.3.0 优化命令传入
+
+V0.2.6 优化`main.py`对消息的消息处理，对纯图片消息优化

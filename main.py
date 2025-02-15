@@ -10,7 +10,7 @@ from pkg.platform.types import *
 
 @register(name="versaBot", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
-          version="0.26", 
+          version="0.3.0", 
           author="sheetung")
 class CommandExecutorPlugin(BasePlugin):
 
@@ -45,8 +45,8 @@ class CommandExecutorPlugin(BasePlugin):
             # 去掉了 startswith('/') 的判断,恢复如下
             # if cleaned_text.startswith('/'):  # 检查是否为命令
             parts = cleaned_text.split(' ', 1)  # 分割命令和参数
-            command = parts[0]
-            args = parts[1] if len(parts) > 1 else ''
+            cmd = parts[0]
+            cmd1 = parts[1] if len(parts) > 1 else str(ctx.event.sender_id)
              # 获取发送者信息
             sender_id = "Unknown"
             if hasattr(ctx.event, 'query'):
@@ -65,10 +65,10 @@ class CommandExecutorPlugin(BasePlugin):
                     elif hasattr(sender, 'nickname') and sender.nickname:
                         sender_id = sender.nickname
 
-            script_path = os.path.join(os.path.dirname(__file__), 'data', f"{command}.py")
+            script_path = os.path.join(os.path.dirname(__file__), 'data', f"{cmd}.py")
             if os.path.exists(script_path):  # 检查脚本是否存在
                 try:
-                    result = subprocess.check_output(['python', script_path, args], text=True, timeout=60)  # 设置超时为60秒
+                    result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
                     messages = self.convert_message(result, sender_id)  # 转换输出消息格式
                     # await ctx.send_message(ctx.event.launcher_type, str(ctx.event.launcher_id), MessageChain(messages))
                     # ctx.add_return("reply", messages)  # 返回处理后的消息
