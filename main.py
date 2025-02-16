@@ -12,7 +12,7 @@ from pkg.platform.types import *
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
           version="0.3", 
           author="sheetung")
-class MyPlugin(BasePlugin):
+class versaBot_Plugin(BasePlugin):
 
     def __init__(self, host: APIHost):
         pass

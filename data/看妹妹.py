@@ -2,7 +2,7 @@ import httpx
 import asyncio
 
 async def fetch_color_image():
-    api_url = "https://3650000.xyz/api/?type=json&mode=1,2,3,5,7"
+    api_url = "https://3650000.xyz/api/?type=json&mode=3,5,7,8"
 
     try:
         async with httpx.AsyncClient() as client:
