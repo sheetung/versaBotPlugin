@@ -8,11 +8,14 @@ import asyncio  # 导入 asyncio
 from mirai import Image, Plain
 from pkg.platform.types import *
 
-@register(name="versaBot", 
+@register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
-          version="0.3.0", 
+          version="0.3", 
           author="sheetung")
 class MyPlugin(BasePlugin):
+
+    def __init__(self, host: APIHost):
+        pass
 
     lock = asyncio.Lock()  # 创建一个锁以确保线程安全
     command_queue = asyncio.Queue()  # 创建一个队列以存储待处理的命令
@@ -102,5 +105,6 @@ class MyPlugin(BasePlugin):
             parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
         
         return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
+    
     def __del__(self):
         pass
