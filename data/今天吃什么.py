@@ -23,4 +23,4 @@ def get_meal_suggestion():
         return f"请求失败: {str(e)}"
 
 if __name__ == "__main__":
-    print(get_meal_suggestion())
+    print(get_meal_suggestion(),end='')

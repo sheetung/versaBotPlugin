@@ -21,7 +21,7 @@ def main():
         markdown_image_link = f"![Anime Image]({image_url})"  # 转换为 Markdown 格式
         print(markdown_image_link)  # 打印 Markdown 图片链接
     else:
-        print("无法获取图片或图片链接无效")  # 打印错误信息
+        print("无法获取图片或图片链接无效",end='')  # 打印错误信息
 
 if __name__ == "__main__":
     main()

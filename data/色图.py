@@ -44,7 +44,7 @@ async def main():
 
         attempt += 1
 
-    print("某站服务器卡了，或者没有这个关键词标签，重新试一下吧~")  # 提示用户
+    print("某站服务器卡了，或者没有这个关键词标签，重新试一下吧~",end='')  # 提示用户
 
 if __name__ == "__main__":
     asyncio.run(main())  # 运行主函数

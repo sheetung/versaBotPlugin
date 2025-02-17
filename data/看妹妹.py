@@ -16,7 +16,7 @@ async def fetch_color_image():
             else:
                 return None
     except httpx.RequestError as e:
-        return ("请求失败啦，稍后再试吧")
+        return f"请求失败啦，稍后再试吧"
     except Exception as e:
         return f"发生未知错误: {str(e)}"
 
@@ -27,7 +27,7 @@ async def main():
         markdown_image_link = f"![Anime Image]({image_url})"  # 转换为 Markdown 格式
         print(markdown_image_link)  # 打印 Markdown 图片链接
     else:
-        print(image_url)  # 打印错误信息
+        print(image_url,end='')  # 打印错误信息
 
 if __name__ == "__main__":
     asyncio.run(main())

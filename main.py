@@ -88,22 +88,24 @@ class versaBotPlugin(BasePlugin):
     def convert_message(self, message, sender_id):
         parts = []
         last_end = 0
+        Inimage = False
         image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
         # 检查消息中是否包含at指令
         if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
             message = message.replace("atper_on", "")  # 从消息中移除"send_on"
-
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
+            Inimage = True
             start, end = match.span()  # 获取匹配的起止位置
             if start > last_end:  # 如果有文本在图像之前
                 parts.append(Plain(message[last_end:start]))  # 添加纯文本部分
             image_url = match.group(1)  # 提取图像 URL
             parts.append(Image(url=image_url))  # 添加图像消息
             last_end = end  # 更新最后结束位置
-        if last_end +1 < len(message):  # 如果还有剩余文本
+        if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
+            print(f'1in={last_end +1 < len(message)}')
             parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
-        
+        Inimage = False
         return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
     
     def __del__(self):
