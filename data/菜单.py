@@ -28,7 +28,7 @@ async def main():
         print(menu)
         print("---")
         print("输入 任意功能名 唤醒我~")
-        print("要跟我对话，'ai'前缀唤醒我~")
+        print("要跟我对话，'ai'前缀唤醒我~",end='')
 
 if __name__ == "__main__":
     import asyncio
