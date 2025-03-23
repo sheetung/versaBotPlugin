@@ -5,7 +5,7 @@ import subprocess
 import os
 import re
 import asyncio  # 导入 asyncio
-from mirai import Image, Plain
+# from mirai import Image, Plain
 from pkg.platform.types import *
 
 @register(name="versaBotPlugin", 
@@ -50,6 +50,31 @@ class versaBotPlugin(BasePlugin):
             parts = cleaned_text.split(' ', 1)  # 分割命令和参数
             cmd = parts[0]
             cmd1 = parts[1] if len(parts) > 1 else str(ctx.event.sender_id)
+
+            launcher_id = str(ctx.event.launcher_id)
+            launcher_type = str(ctx.event.launcher_type)
+            
+            # 获取黑/白名单
+            mode = self.ap.pipeline_cfg.data['access-control']['mode']
+            sess_list = self.ap.pipeline_cfg.data['access-control'][mode]
+
+            found = False
+            if (launcher_type== 'group' and 'group_*' in sess_list) \
+                or (launcher_type == 'person' and 'person_*' in sess_list):
+                found = True
+            else:
+                for sess in sess_list:
+                    if sess == f"{launcher_type}_{launcher_id}":
+                        found = True
+                        break 
+            ctn = False
+            if mode == 'whitelist':
+                ctn = found
+            else:
+                ctn = not found
+            if not ctn:
+                # print(f'您被杀了哦')
+                return
              # 获取发送者信息
             sender_id = "Unknown"
             if hasattr(ctx.event, 'query'):
