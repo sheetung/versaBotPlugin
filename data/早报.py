@@ -48,15 +48,16 @@ def main():
         image_url = get_zaobao_image_url(token)
         
         if image_url and image_url.startswith("http"):
-            print(f"")
+            markdown_image_link = f"![早报图片]({image_url})"  # 转换为 Markdown 格式
+            print(markdown_image_link)  # 打印 Markdown 图片链接
         else:
             print("获取图片失败或链接无效", end='')
     except FileNotFoundError:
-        print("错误：当前目录未找到 config.json 文件")
+        print("错误：当前目录未找到 config.json 文件", end='')
     except json.JSONDecodeError:
-        print("错误：config.json 格式不正确")
+        print("错误：config.json 格式不正确", end='')
     except KeyError:
-        print("错误：config.json 缺少 token 字段")
+        print("错误：config.json 缺少 token 字段", end='')
 
 if __name__ == "__main__":
     main()

@@ -41,10 +41,10 @@ def get_horoscope_luck(constellation):
         return "获取星座运势失败，请稍后再试"
 
 def main():
-    if len(sys.argv) > 1:
-        constellation = sys.argv[1]
-    else:
-        constellation = input("请输入星座名称：")
+    # if len(sys.argv) > 1:
+    #     constellation = sys.argv[1]
+    # else:
+    #     constellation = input("请输入星座名称：")
     print("atper_on")
     print( "今日运势")
     print(get_personal_luck())  # 打印个人运势

@@ -7,6 +7,8 @@ import re
 import asyncio  # 导入 asyncio
 # from mirai import Image, Plain
 from pkg.platform.types import *
+from .forward import ForwardMessage 
+from typing import List, Dict
 
 @register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
@@ -15,7 +17,18 @@ from pkg.platform.types import *
 class versaBotPlugin(BasePlugin):
 
     def __init__(self, host: APIHost):
-        pass
+        # pass
+        self.forwarder = ForwardMessage("127.0.0.1", 3000)
+        self.forward_config = {
+            '流量卡': {  # 命令名称
+                'enable': True,  # 是否启用转发
+                'prompt': '流量卡查询结果',
+                'summary': '最新套餐信息',
+                'source': '流量卡小助手',
+                'user_id': '123456',    # 自定义QQ号
+                'nickname': '套餐小助手'  # 自定义昵称
+            }
+        }
 
     lock = asyncio.Lock()  # 创建一个锁以确保线程安全
     command_queue = asyncio.Queue()  # 创建一个队列以存储待处理的命令
@@ -97,18 +110,51 @@ class versaBotPlugin(BasePlugin):
             if os.path.exists(script_path):  # 检查脚本是否存在
                 try:
                     result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
-                    messages = self.convert_message(result, sender_id)  # 转换输出消息格式
-                    # await ctx.send_message(ctx.event.launcher_type, str(ctx.event.launcher_id), MessageChain(messages))
-                    # ctx.add_return("reply", messages)  # 返回处理后的消息
-                    await ctx.reply(messages)
+                    if cmd in self.forward_config and self.forward_config[cmd]['enable']:
+                        # 转换为合并转发格式
+                        forward_messages = self.convert_to_forward(result)
+                        config = self.forward_config[cmd]
+                        # 发送合并转发
+                        await self.forwarder.send_forward(
+                            launcher_id=str(ctx.event.launcher_id),
+                            messages=forward_messages,
+                            prompt=config['prompt'],
+                            summary=config['summary'],
+                            source=config['source'],
+                            user_id=config['user_id'],
+                            nickname=config['nickname']
+                        )
+                    else:
+                        # self.ap.logger.info(f'命令{result}')
+                        messages = self.convert_message(result, sender_id)  # 转换输出消息格式
+                        # await ctx.send_message(ctx.event.launcher_type, str(ctx.event.launcher_id), MessageChain(messages))
+                        # ctx.add_return("reply", messages)  # 返回处理后的消息
+                        await ctx.reply(messages)
+
                 except subprocess.CalledProcessError as e:  # 捕获脚本执行错误
                     # ctx.add_return("reply", [f"执行失败喵: {e.output}"])  # 返回错误消息
-                    await ctx.reply(MessageChain([Plain(f"执行失败喵~ {e.output}")]))
+                    await ctx.reply(MessageChain([Plain(f"执行失败喵~ {e.output}~")]))
                 except Exception as e:  # 捕获其他异常
                     # ctx.add_return("reply", [f"发生错误了喵: {str(e)}"])  # 返回通用错误消息
                     # await ctx.reply(MessageChain([Plain(f"发生错误了喵~ {str(e)}")]))
                     await ctx.reply(MessageChain([Plain(f"发生错误了喵~")]))
                 ctx.prevent_default()  # 防止后续处理
+
+    def convert_to_forward(self, raw_message: str) -> List[Dict]:
+        """转换原始消息为转发格式"""
+        messages = []
+        
+        # 解析原始消息
+        image_pattern = re.compile(r'!\[.*?\]\((.*?)\)')
+        text_parts = image_pattern.split(raw_message)
+        
+        for part in text_parts:
+            if part.startswith("http"):
+                messages.append({"image": part})
+            elif part.strip():
+                messages.append({"text": part.strip()})
+        
+        return messages
 
     def convert_message(self, message, sender_id):
         parts = []
