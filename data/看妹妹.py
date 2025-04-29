@@ -5,7 +5,7 @@ import re  # 新增正则模块用于提取数字
 
 async def fetch_color_image(max_retries=3):
     """获取图片链接（带重试机制）"""
-    api_url = "https://3650000.xyz/api/?type=json&mode=3,5,7,8"
+    api_url = "https://3650000.xyz/api/?type=json&mode=1,3,5,8"
     for attempt in range(max_retries):
         try:
             async with httpx.AsyncClient() as client:
@@ -39,7 +39,7 @@ async def main():
             if n <= 0:
                 print("警告：请求次数需>0，已重置为1")
                 n = 1
-            elif n >=10:
+            elif n >= 10:
                 n = 10
         else:
             print(f"无效参数 '{sys.argv[1]}'，使用默认值1")
@@ -50,11 +50,16 @@ async def main():
     
     # 输出结果
     # print(f"\n🖼️ 共获取 {len([r for r in results if r.startswith('http')]}/{n} 张图片"
+    if int(''.join(num_match)) > 10:
+            print(f'大人看多伤身，10次够啦')
+            print('\n---\n')
     for i, result in enumerate(results, 1):
         # prefix = "[成功]" if result.startswith("http") else "[失败]"
         # print(f"{prefix} 第{i}次结果：{result}")
+        
         markdown_image_link = f"![图片]({result})"  # 转换为 Markdown 格式
         print(markdown_image_link)  # 打印 Markdown 图片链接
+        print('\n---\n')
 
 if __name__ == "__main__":
     asyncio.run(main())

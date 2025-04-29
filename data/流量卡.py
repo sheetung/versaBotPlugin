@@ -102,8 +102,10 @@ def main():
 
     if not matched_products:
         print(f"未找到包含 '{keyword}' 的产品\n可到页面店铺查询:https://172.lot-ml.com/ProductEn/Index/3abcd2e80b9b4694")
+        print('\n---\n')
     else:
         print(f"共找到包含{keyword}的 {len(matched_products)} 个匹配产品，更多流量卡请到页面店铺查询:https://172.lot-ml.com/ProductEn/Index/3abcd2e80b9b4694")
+        print('\n---\n')
         
         # 提取并展示详细信息
         results = []
@@ -113,13 +115,11 @@ def main():
             results.append(data)
             
             # 打印单条结果
-            print("-"*3)
-            
             for key, value in data.items():
                 if key == "md图片":
-                    print(value)
+                    print(value,end='')
                     continue
                 print(f"{key}: {value}")
-
+            print('\n---\n')
 if __name__ == "__main__":
     main()

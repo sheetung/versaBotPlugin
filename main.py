@@ -26,26 +26,29 @@ class versaBotPlugin(BasePlugin):
                 'prompt': '流量卡查询结果',
                 'summary': '最新套餐信息',
                 'source': '流量卡小助手',
-                'user_id': '123456',    # 自定义QQ号
-                'nickname': '套餐小助手'  # 自定义昵称
+                'user_id': '1048643088',    # 自定义QQ号
+                'nickname': '套餐小助手',  # 自定义昵称
+                'mode': 'multi'  # single/multi 对应单条发出还是分条发出
             },
-            '早报': {  # 命令名称
-                'enable': True,  # 是否启用转发
+            '早报': {  
+                'enable': True,  
                 'dftcmd': '--',
                 'prompt': '今日新闻',
                 'summary': '今日新闻',
                 'source': '沙耶香早报',
-                'user_id': '1048643088',    # 自定义QQ号
-                'nickname': 'bot早报'  # 自定义昵称
+                'user_id': '1048643088',   
+                'nickname': 'bot早报',
+                'mode': 'single'  
             },
-            '看妹妹': {  # 命令名称
-                'enable': True,  # 是否启用转发
-                'dftcmd': '--',
+            '看妹妹': {  
+                'enable': True,  
+                'dftcmd': '1',
                 'prompt': '看妹妹',
                 'summary': '看妹妹',
                 'source': '沙耶香不看',
-                'user_id': '1048643088',    # 自定义QQ号
-                'nickname': 'bot妹妹'  # 自定义昵称
+                'user_id': '1048643088',    
+                'nickname': 'bot妹妹',
+                'mode': 'multi'   
             }
         }
 
@@ -131,9 +134,11 @@ class versaBotPlugin(BasePlugin):
                     if cmd in self.forward_config and cmd1 == str(ctx.event.sender_id):
                         cmd1 = self.forward_config[cmd]['dftcmd']
                     result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
+                    # self.ap.logger.info(f'命令{result}')
                     if cmd in self.forward_config and self.forward_config[cmd]['enable']:
                         # 转换为合并转发格式
                         forward_messages = self.convert_to_forward(result)
+                        # self.ap.logger.info(f'forward_messages:\n{forward_messages}')
                         config = self.forward_config[cmd]
                         # 发送合并转发
                         await self.forwarder.send_forward(
@@ -143,7 +148,8 @@ class versaBotPlugin(BasePlugin):
                             summary=config['summary'],
                             source=config['source'],
                             user_id=config['user_id'],
-                            nickname=config['nickname']
+                            nickname=config['nickname'],
+                            mode=config['mode']
                         )
                     else:
                         # self.ap.logger.info(f'命令{result}')
@@ -157,25 +163,41 @@ class versaBotPlugin(BasePlugin):
                     await ctx.reply(MessageChain([Plain(f"执行失败喵~ {e.output}~")]))
                 except Exception as e:  # 捕获其他异常
                     # ctx.add_return("reply", [f"发生错误了喵: {str(e)}"])  # 返回通用错误消息
-                    # await ctx.reply(MessageChain([Plain(f"发生错误了喵~ {str(e)}")]))
+                    await ctx.reply(MessageChain([Plain(f"发生错误了喵~ {str(e)}")]))
                     await ctx.reply(MessageChain([Plain(f"发生错误了喵~")]))
                 ctx.prevent_default()  # 防止后续处理
 
-    def convert_to_forward(self, raw_message: str) -> List[Dict]:
-        """转换原始消息为转发格式"""
+    def convert_to_forward(self, raw_message: str) -> list[dict]:
+        """升级版消息解析，按块分组，保留图文顺序"""
         messages = []
-        
-        # 解析原始消息
-        image_pattern = re.compile(r'!\[.*?\]\((.*?)\)')
-        text_parts = image_pattern.split(raw_message)
-        
-        for part in text_parts:
-            if part.startswith("http"):
-                messages.append({"image": part})
-            elif part.strip():
-                messages.append({"text": part.strip()})
-        
+
+        for block in raw_message.split('\n---\n'):
+            block = block.strip()
+            if not block:
+                continue
+            content = []
+            elements = re.split(r'(!\[.*?\]\(.*?\))', block)
+            for elem in elements:
+                elem = elem.strip()
+                if not elem:
+                    continue
+                if elem.startswith('!['):  # 图片
+                    match = re.match(r'!\[.*?\]\((.*?)\)', elem)
+                    if match:
+                        content.append({
+                            "type": "image",
+                            "data": {"file": match.group(1)}
+                        })
+                else:  # 文本
+                    content.append({
+                        "type": "text",
+                        "data": {"text": elem}
+                    })
+            if content:
+                messages.append({"content": content})
         return messages
+
+
 
     def convert_message(self, message, sender_id):
         parts = []

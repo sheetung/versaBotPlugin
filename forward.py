@@ -17,14 +17,26 @@ class ForwardMessage:
         summary: str = "默认摘要",
         source: str = "默认来源",
         user_id: str = "100000",
-        nickname: str = "消息助手"
+        nickname: str = "消息助手",
+        mode: str = "single"  # 新增模式参数
     ) -> dict:
         """发送合并转发消息"""
+        # 构建消息节点
+        if mode == "single":
+            nodes = self._build_single_node(messages, user_id, nickname)
+            item_count = len(nodes[0]['data']['content']) if nodes else 0
+        else:
+            nodes = self._build_nodes(messages, user_id, nickname)
+            item_count = len(nodes)
+        
+        # 自动追加统计信息
+        formatted_summary = f"{summary} | 共{item_count}条内容"
+        
         message_data = {
             "group_id": launcher_id,
-            "messages": self._build_single_node(messages, user_id, nickname),
+            "messages": nodes,
             "prompt": prompt,
-            "summary": summary,
+            "summary": formatted_summary,
             "source": source
         }
         
@@ -47,16 +59,16 @@ class ForwardMessage:
             }
         }]
     
-    def _build_nodes(self, messages: List[Dict]) -> List[Dict]:
+    def _build_nodes(self, messages: List[Dict],user_id: str, nickname: str) -> List[Dict]:
         """构建消息节点"""
         nodes = []
         for idx, msg in enumerate(messages):
             node = {
                 "type": "node",
                 "data": {
-                    "user_id": str(100000 + idx),  # 虚拟ID
-                    "nickname": "消息助手",
-                    "content": self._parse_contents(msg)
+                    "user_id": user_id,
+                    "nickname": nickname,
+                    "content": self._parse_content(msg)
                 }
             }
             nodes.append(node)
@@ -66,17 +78,25 @@ class ForwardMessage:
         """解析全部消息内容"""
         contents = []
         for msg in messages:
-            if 'text' in msg:
-                contents.append({
-                    "type": "text",
-                    "data": {"text": msg['text']}
-                })
-            if 'image' in msg:
-                contents.append({
-                    "type": "image",
-                    "data": {"file": self._get_media_path(msg['image'])}
-                })
+            contents.extend(self._parse_content(msg))  # 使用_parse_content来处理每条消息
         return contents
+    
+    def _parse_content(self, msg: Dict) -> List[Dict]:
+        """解析消息内容"""
+        # content = []
+        # if 'image' in msg:
+        #     content.append({
+        #         "type": "image",
+        #         "data": {"file": self._get_media_path(msg['image'])}
+        #     })
+        # if 'text' in msg:
+        #     content.append({
+        #         "type": "text",
+        #         "data": {"text": msg['text']}
+        #     })
+        return msg.get("content", [])
+
+        # return content
 
     def _get_media_path(self, path: str) -> str:
         """获取合法媒体路径"""
