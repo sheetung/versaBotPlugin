@@ -97,13 +97,13 @@ def extract_product_data(product_li):
 
 def main():
     # 命令行参数处理（默认搜索词为"电信"）
-    keyword = sys.argv[1] if len(sys.argv) > 1 else "电信"
+    keyword = sys.argv[1] if len(sys.argv) > 1 else "19元"
     matched_products = get_all_products(keyword)
 
     if not matched_products:
-        print(f"未找到包含 '{keyword}' 的产品")
+        print(f"未找到包含 '{keyword}' 的产品\n可到页面店铺查询:https://172.lot-ml.com/ProductEn/Index/3abcd2e80b9b4694")
     else:
-        print(f"共找到 {len(matched_products)} 个匹配产品：")
+        print(f"共找到包含{keyword}的 {len(matched_products)} 个匹配产品，更多流量卡请到页面店铺查询:https://172.lot-ml.com/ProductEn/Index/3abcd2e80b9b4694")
         
         # 提取并展示详细信息
         results = []
@@ -113,7 +113,7 @@ def main():
             results.append(data)
             
             # 打印单条结果
-            print("\n" + "-"*3)
+            print("-"*3)
             
             for key, value in data.items():
                 if key == "md图片":

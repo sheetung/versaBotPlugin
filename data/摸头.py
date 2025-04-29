@@ -18,7 +18,7 @@ def get_motou_image_url(qq=None):
 
 def main():
     # 从命令行参数中解析输入
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1 or sys.argv != '':
         qq_number = sys.argv[1]  # 获取用户输入的QQ号
     else:
         # 未输入QQ号，默认使用调用命令的账号

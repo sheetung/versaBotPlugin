@@ -22,11 +22,30 @@ class versaBotPlugin(BasePlugin):
         self.forward_config = {
             '流量卡': {  # 命令名称
                 'enable': True,  # 是否启用转发
+                'dftcmd': '19元',
                 'prompt': '流量卡查询结果',
                 'summary': '最新套餐信息',
                 'source': '流量卡小助手',
                 'user_id': '123456',    # 自定义QQ号
                 'nickname': '套餐小助手'  # 自定义昵称
+            },
+            '早报': {  # 命令名称
+                'enable': True,  # 是否启用转发
+                'dftcmd': '--',
+                'prompt': '今日新闻',
+                'summary': '今日新闻',
+                'source': '沙耶香早报',
+                'user_id': '1048643088',    # 自定义QQ号
+                'nickname': 'bot早报'  # 自定义昵称
+            },
+            '看妹妹': {  # 命令名称
+                'enable': True,  # 是否启用转发
+                'dftcmd': '--',
+                'prompt': '看妹妹',
+                'summary': '看妹妹',
+                'source': '沙耶香不看',
+                'user_id': '1048643088',    # 自定义QQ号
+                'nickname': 'bot妹妹'  # 自定义昵称
             }
         }
 
@@ -109,6 +128,8 @@ class versaBotPlugin(BasePlugin):
             script_path = os.path.join(os.path.dirname(__file__), 'data', f"{cmd}.py")
             if os.path.exists(script_path):  # 检查脚本是否存在
                 try:
+                    if cmd in self.forward_config and cmd1 == str(ctx.event.sender_id):
+                        cmd1 = self.forward_config[cmd]['dftcmd']
                     result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
                     if cmd in self.forward_config and self.forward_config[cmd]['enable']:
                         # 转换为合并转发格式
