@@ -1,6 +1,7 @@
 # forward.py
 # auther: https://github.com/Hanschase
 import json
+import re
 import aiohttp
 import os
 from typing import List, Dict
@@ -105,3 +106,33 @@ class ForwardMessage:
         if os.path.isfile(path):
             return f"file:///{os.path.abspath(path)}"
         return ""
+    
+    def convert_to_forward(self, raw_message: str) -> list[dict]:
+        """升级版消息解析，按块分组，保留图文顺序"""
+        messages = []
+
+        for block in raw_message.split('\n---\n'):
+            block = block.strip()
+            if not block:
+                continue
+            content = []
+            elements = re.split(r'(!\[.*?\]\(.*?\))', block)
+            for elem in elements:
+                elem = elem.strip()
+                if not elem:
+                    continue
+                if elem.startswith('!['):  # 图片
+                    match = re.match(r'!\[.*?\]\((.*?)\)', elem)
+                    if match:
+                        content.append({
+                            "type": "image",
+                            "data": {"file": match.group(1)}
+                        })
+                else:  # 文本
+                    content.append({
+                        "type": "text",
+                        "data": {"text": elem}
+                    })
+            if content:
+                messages.append({"content": content})
+        return messages

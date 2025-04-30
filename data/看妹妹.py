@@ -36,22 +36,18 @@ async def main():
         num_match = re.findall(r'\d+', sys.argv[1])
         if num_match:
             n = int(''.join(num_match))  # 合并连续数字（如 1x0 会转为 10）
-            if n <= 0:
-                print("警告：请求次数需>0，已重置为1")
-                n = 1
-            elif n >= 10:
-                n = 10
         else:
-            print(f"无效参数 '{sys.argv[1]}'，使用默认值1")
-
+            print(f"无效参数 '{sys.argv[1]}'，使用默认值{n}")
+            print('\n---\n')
+            
     # 并发请求
-    tasks = [fetch_color_image() for _ in range(n)]
+    tasks = [fetch_color_image() for _ in range(max(1, min(n, 10)))]
     results = await asyncio.gather(*tasks)
     
     # 输出结果
     # print(f"\n🖼️ 共获取 {len([r for r in results if r.startswith('http')]}/{n} 张图片"
-    if int(''.join(num_match)) > 10:
-            print(f'大人看多伤身，10次够啦')
+    if n > 10:
+            print(f'大人您看了{n}下，但是不行哦，只能看10下')
             print('\n---\n')
     for i, result in enumerate(results, 1):
         # prefix = "[成功]" if result.startswith("http") else "[失败]"
@@ -59,7 +55,8 @@ async def main():
         
         markdown_image_link = f"![图片]({result})"  # 转换为 Markdown 格式
         print(markdown_image_link)  # 打印 Markdown 图片链接
-        print('\n---\n')
+        if n > 1: 
+            print('\n---\n')
 
 if __name__ == "__main__":
     asyncio.run(main())

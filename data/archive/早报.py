@@ -34,7 +34,7 @@ def get_zaobao_image_url(token):
 
 def main():
     try:
-         # 获取脚本所在目录的绝对路径
+        # 获取脚本所在目录的绝对路径
         script_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(script_dir, 'zaobao_token.json')
 

@@ -49,6 +49,16 @@ class versaBotPlugin(BasePlugin):
                 'user_id': '1048643088',    
                 'nickname': 'bot妹妹',
                 'mode': 'multi'   
+            },
+            '天气': {  
+                'enable': False,  
+                'dftcmd': '贵阳',
+                'prompt': '看妹妹',
+                'summary': '看妹妹',
+                'source': '沙耶香不看',
+                'user_id': '1048643088',    
+                'nickname': 'bot妹妹',
+                'mode': 'multi'   
             }
         }
 
@@ -86,6 +96,7 @@ class versaBotPlugin(BasePlugin):
             cmd = parts[0]
             cmd1 = parts[1] if len(parts) > 1 else str(ctx.event.sender_id)
 
+            sender_id = ctx.event.sender_id
             launcher_id = str(ctx.event.launcher_id)
             launcher_type = str(ctx.event.launcher_type)
             
@@ -111,38 +122,42 @@ class versaBotPlugin(BasePlugin):
                 # print(f'您被杀了哦')
                 return
              # 获取发送者信息
-            sender_id = "Unknown"
-            if hasattr(ctx.event, 'query'):
-                message_event = ctx.event.query.message_event
-                if hasattr(message_event, 'sender'):
-                    sender = message_event.sender
-                    # 优先使用qq id
-                    if hasattr(sender, 'id') and sender.id:
-                        sender_id = sender.id
-                    elif hasattr(sender, 'card') and sender.card:
-                        sender_id = sender.card
-                    # 其次使用群昵称
-                    elif hasattr(sender, 'member_name') and sender.member_name:
-                        sender_id = sender.member_name
-                    # 最后使用QQ昵称
-                    elif hasattr(sender, 'nickname') and sender.nickname:
-                        sender_id = sender.nickname
+            # sender_id = "Unknown"
+            # if hasattr(ctx.event, 'query'):
+            #     message_event = ctx.event.query.message_event
+            #     if hasattr(message_event, 'sender'):
+            #         sender = message_event.sender
+            #         # 优先使用qq id
+            #         if hasattr(sender, 'id') and sender.id:
+            #             sender_id = sender.id
+            #         elif hasattr(sender, 'card') and sender.card:
+            #             sender_id = sender.card
+            #         # 其次使用群昵称
+            #         elif hasattr(sender, 'member_name') and sender.member_name:
+            #             sender_id = sender.member_name
+            #         # 最后使用QQ昵称
+            #         elif hasattr(sender, 'nickname') and sender.nickname:
+            #             sender_id = sender.nickname
 
             script_path = os.path.join(os.path.dirname(__file__), 'data', f"{cmd}.py")
             if os.path.exists(script_path):  # 检查脚本是否存在
                 try:
-                    if cmd in self.forward_config and cmd1 == str(ctx.event.sender_id):
+                    if cmd in self.forward_config and cmd1 == str(sender_id):
                         cmd1 = self.forward_config[cmd]['dftcmd']
                     result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
-                    # self.ap.logger.info(f'命令{result}')
+                    # self.ap.logger.info(f'命令{type(result)}')
                     if cmd in self.forward_config and self.forward_config[cmd]['enable']:
+                        if cmd1 == '1' and cmd == '看妹妹':
+                            messages = self.convert_message(result, sender_id)  # 转换输出消息格式
+                            await ctx.reply(messages)
+                            return
                         # 转换为合并转发格式
-                        forward_messages = self.convert_to_forward(result)
+                        forward_messages = self.forwarder.convert_to_forward(result)
                         # self.ap.logger.info(f'forward_messages:\n{forward_messages}')
                         config = self.forward_config[cmd]
                         # 发送合并转发
                         await self.forwarder.send_forward(
-                            launcher_id=str(ctx.event.launcher_id),
+                            launcher_id=launcher_id,
                             messages=forward_messages,
                             prompt=config['prompt'],
                             summary=config['summary'],
@@ -167,37 +182,35 @@ class versaBotPlugin(BasePlugin):
                     await ctx.reply(MessageChain([Plain(f"发生错误了喵~")]))
                 ctx.prevent_default()  # 防止后续处理
 
-    def convert_to_forward(self, raw_message: str) -> list[dict]:
-        """升级版消息解析，按块分组，保留图文顺序"""
-        messages = []
+    # def convert_to_forward(self, raw_message: str) -> list[dict]:
+    #     """升级版消息解析，按块分组，保留图文顺序"""
+    #     messages = []
 
-        for block in raw_message.split('\n---\n'):
-            block = block.strip()
-            if not block:
-                continue
-            content = []
-            elements = re.split(r'(!\[.*?\]\(.*?\))', block)
-            for elem in elements:
-                elem = elem.strip()
-                if not elem:
-                    continue
-                if elem.startswith('!['):  # 图片
-                    match = re.match(r'!\[.*?\]\((.*?)\)', elem)
-                    if match:
-                        content.append({
-                            "type": "image",
-                            "data": {"file": match.group(1)}
-                        })
-                else:  # 文本
-                    content.append({
-                        "type": "text",
-                        "data": {"text": elem}
-                    })
-            if content:
-                messages.append({"content": content})
-        return messages
-
-
+    #     for block in raw_message.split('\n---\n'):
+    #         block = block.strip()
+    #         if not block:
+    #             continue
+    #         content = []
+    #         elements = re.split(r'(!\[.*?\]\(.*?\))', block)
+    #         for elem in elements:
+    #             elem = elem.strip()
+    #             if not elem:
+    #                 continue
+    #             if elem.startswith('!['):  # 图片
+    #                 match = re.match(r'!\[.*?\]\((.*?)\)', elem)
+    #                 if match:
+    #                     content.append({
+    #                         "type": "image",
+    #                         "data": {"file": match.group(1)}
+    #                     })
+    #             else:  # 文本
+    #                 content.append({
+    #                     "type": "text",
+    #                     "data": {"text": elem}
+    #                 })
+    #         if content:
+    #             messages.append({"content": content})
+    #     return messages
 
     def convert_message(self, message, sender_id):
         parts = []
