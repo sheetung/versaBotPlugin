@@ -84,17 +84,17 @@ def main():
     
     if realtime_weather and forecast_weather:
         now = realtime_weather['now']
-        print(f"📍 城市：{city_name}")
+        print(f"📍城市：{city_name}")
         print("-"*7)
-        print(f"🌤 实时天气：{now['text']}")
-        print(f"🌡 当前温度：{now['temp']}℃")
-        print(f"💨 风力：{now['windDir']} {now['windScale']}级")
-        print(f"💧 湿度：{now['humidity']}%")
-        print("📅 未来三天天气预报：")
+        print(f"实时天气：{now['text']}")
+        print(f"当前温度：{now['temp']}℃")
+        print(f"风力：{now['windDir']} {now['windScale']}级")
+        print(f"湿度：{now['humidity']}%")
+        print("📅未来三天天气预报：")
         for day in forecast_weather['daily']:
             print(f"日期：{day['fxDate']}")
-            print(f"☀白天：{day['textDay']}，🌙夜间：{day['textNight']}")
-            print(f"🔺最高温度：{day['tempMax']}℃，🔻最低温度：{day['tempMin']}℃")
+            print(f"白天：{day['textDay']}，夜间：{day['textNight']}")
+            print(f"最高温度：{day['tempMax']}℃，最低温度：{day['tempMin']}℃")
     else:
         print("❌ 获取天气数据失败，请检查网络或API配置。")
 
