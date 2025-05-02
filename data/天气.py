@@ -95,6 +95,8 @@ def main():
             print(f"日期：{day['fxDate']}")
             print(f"白天：{day['textDay']}，夜间：{day['textNight']}")
             print(f"最高温度：{day['tempMax']}℃，最低温度：{day['tempMin']}℃")
+        print("-"*7)
+        print(f"触发指令：天气 <城市>")
     else:
         print("❌ 获取天气数据失败，请检查网络或API配置。")
 

@@ -9,6 +9,7 @@ import asyncio  # 导入 asyncio
 from pkg.platform.types import *
 from .forward import ForwardMessage 
 from typing import List, Dict
+from .data_xz import SageSystem
 
 @register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
@@ -19,6 +20,7 @@ class versaBotPlugin(BasePlugin):
     def __init__(self, host: APIHost):
         # pass
         self.forwarder = ForwardMessage("127.0.0.1", 3000)
+        self.sagesys = SageSystem()
         self.forward_config = {
             '流量卡': {  # 命令名称
                 'enable': True,  # 是否启用转发
@@ -141,6 +143,12 @@ class versaBotPlugin(BasePlugin):
 
             script_path = os.path.join(os.path.dirname(__file__), 'data', f"{cmd}.py")
             if os.path.exists(script_path):  # 检查脚本是否存在
+                # 贤者模式判断
+                if self.sagesys.check_user(sender_id, cmd):
+                    remain  = self.sagesys.get_remaining(sender_id, cmd)
+                    message_c = MessageChain([Plain(f'贤者模式 | {cmd}请 {remain:.1f} 小时后再尝试')])
+                    await ctx.reply(message_c)
+                    return
                 try:
                     if cmd in self.forward_config and cmd1 == str(sender_id):
                         cmd1 = self.forward_config[cmd]['dftcmd']
