@@ -15,7 +15,7 @@ class SageSystem:
     
     _DEFAULT_CONFIG = {
         "看妹妹": {"duration": 1},  # 命令配置
-        "default_duration": 2      # 默认冷却
+        "default_duration": 0      # 默认冷却
     }
 
     def __init__(self, data_file='sage_data.json', config=None):

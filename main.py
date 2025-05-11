@@ -9,7 +9,7 @@ import asyncio  # 导入 asyncio
 from pkg.platform.types import *
 from .forward import ForwardMessage 
 from typing import List, Dict
-from .data_xz import SageSystem
+from .data_sage import SageSystem
 
 @register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 

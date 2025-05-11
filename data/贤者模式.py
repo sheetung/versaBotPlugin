@@ -8,7 +8,9 @@ Usage:
 import json
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+china_tz = timezone(timedelta(hours=8))
 
 class SageSystem:
     """核心功能类"""
@@ -89,7 +91,7 @@ def cli_handler():
 
     sage.set_user(user_id)
     print(f"✅ 用户[{user_id}] 贤者模式已激活 ")
-    print(f"⏰ 记录时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"⏰ 记录时间：{datetime.now(china_tz).strftime('%Y-%m-%d %H:%M:%S')}")
  
 
 if __name__ == '__main__':

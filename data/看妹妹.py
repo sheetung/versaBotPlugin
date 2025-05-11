@@ -17,7 +17,7 @@ async def fetch_color_image(max_retries=3):
                     else:
                         error_msg = f"API异常 code={response_data.get('code')} [尝试 {attempt+1}/{max_retries}]"
                 else:
-                    error_msg = f"HTTP {response.status_code} [尝试 {attempt+1}/{max_retries}]"
+                    error_msg = f" {response.status_code} [尝试 {attempt+1}/{max_retries}]"
         except httpx.RequestError:
             error_msg = f"网络错误 [尝试 {attempt+1}/{max_retries}]"
         except Exception as e:
@@ -52,9 +52,9 @@ async def main():
     for i, result in enumerate(results, 1):
         # prefix = "[成功]" if result.startswith("http") else "[失败]"
         # print(f"{prefix} 第{i}次结果：{result}")
-        
-        markdown_image_link = f"![图片]({result})"  # 转换为 Markdown 格式
-        print(markdown_image_link)  # 打印 Markdown 图片链接
+        if 'http' in result:
+            markdown_image_link = f"![图片]({result})"  # 转换为 Markdown 格式
+            print(markdown_image_link)  # 打印 Markdown 图片链接
         if n > 1: 
             print('\n---\n')
 
