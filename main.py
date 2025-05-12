@@ -10,6 +10,8 @@ from pkg.platform.types import *
 from .forward import ForwardMessage 
 from typing import List, Dict
 from .data_sage import SageSystem
+import base64
+from io import BytesIO
 
 @register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
@@ -31,16 +33,6 @@ class versaBotPlugin(BasePlugin):
                 'user_id': '1048643088',    # 自定义QQ号
                 'nickname': '套餐小助手',  # 自定义昵称
                 'mode': 'multi'  # single/multi 对应单条发出还是分条发出
-            },
-            '早报': {  
-                'enable': True,  
-                'dftcmd': '--',
-                'prompt': '今日新闻',
-                'summary': '今日新闻',
-                'source': '沙耶香早报',
-                'user_id': '1048643088',   
-                'nickname': 'bot早报',
-                'mode': 'single'  
             },
             '看妹妹': {  
                 'enable': True,  
@@ -106,6 +98,10 @@ class versaBotPlugin(BasePlugin):
             mode = self.ap.pipeline_cfg.data['access-control']['mode']
             sess_list = self.ap.pipeline_cfg.data['access-control'][mode]
 
+            # 临时适配langbot4.0特性
+            if not mode or not sess_list:
+                mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
+                sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
             found = False
             if (launcher_type== 'group' and 'group_*' in sess_list) \
                 or (launcher_type == 'person' and 'person_*' in sess_list):
@@ -153,7 +149,7 @@ class versaBotPlugin(BasePlugin):
                     if cmd in self.forward_config and cmd1 == str(sender_id):
                         cmd1 = self.forward_config[cmd]['dftcmd']
                     result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
-                    # self.ap.logger.info(f'命令{type(result)}')
+                    # self.ap.logger.info(f'[verbot]result---\n{result}\n---')
                     if cmd in self.forward_config and self.forward_config[cmd]['enable']:
                         if cmd1 == '1' and cmd == '看妹妹':
                             messages = self.convert_message(result, sender_id)  # 转换输出消息格式
@@ -177,6 +173,7 @@ class versaBotPlugin(BasePlugin):
                     else:
                         # self.ap.logger.info(f'命令{result}')
                         messages = self.convert_message(result, sender_id)  # 转换输出消息格式
+                        # self.ap.logger.info(f'[verbot]messages---\n{messages}\n---')
                         # await ctx.send_message(ctx.event.launcher_type, str(ctx.event.launcher_id), MessageChain(messages))
                         # ctx.add_return("reply", messages)  # 返回处理后的消息
                         await ctx.reply(messages)
@@ -220,15 +217,41 @@ class versaBotPlugin(BasePlugin):
     #             messages.append({"content": content})
     #     return messages
 
+    # def convert_message(self, message, sender_id):
+    #     parts = []
+    #     last_end = 0
+    #     Inimage = False
+    #     image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
+    #     # 检查消息中是否包含at指令
+    #     if "atper_on" in message:
+    #         parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
+    #         message = message.replace("atper_on", "")  # 从消息中移除"send_on"
+    #     for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
+    #         Inimage = True
+    #         start, end = match.span()  # 获取匹配的起止位置
+    #         if start > last_end:  # 如果有文本在图像之前
+    #             parts.append(Plain(message[last_end:start]))  # 添加纯文本部分
+    #         image_url = match.group(1)  # 提取图像 URL
+    #         parts.append(Image(url=image_url))  # 添加图像消息
+    #         last_end = end  # 更新最后结束位置
+    #     if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
+    #         print(f'1in={last_end +1 < len(message)}')
+    #         parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
+    #     Inimage = False
+    #     return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
     def convert_message(self, message, sender_id):
         parts = []
         last_end = 0
         Inimage = False
-        image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
+        image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 网络图片的正则表达式
+        local_image_pattern = re.compile(r'(/home/\S+)')  # 本地图片的正则表达式
+
         # 检查消息中是否包含at指令
         if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
             message = message.replace("atper_on", "")  # 从消息中移除"send_on"
+        
+        # 处理网络图片
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             Inimage = True
             start, end = match.span()  # 获取匹配的起止位置
@@ -237,9 +260,20 @@ class versaBotPlugin(BasePlugin):
             image_url = match.group(1)  # 提取图像 URL
             parts.append(Image(url=image_url))  # 添加图像消息
             last_end = end  # 更新最后结束位置
-        if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
-            print(f'1in={last_end +1 < len(message)}')
-            parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
+
+        # 处理本地图片
+        # self.ap.logger.info(f'{image_pattern.finditer(message)}')
+        for match in local_image_pattern.finditer(message):  # 查找所有匹配的本地图像链接
+            image_path = match.group(1)  # 提取本地图片路径
+            
+            try:
+                with open(image_path, 'rb') as img_file:
+                    img_bytes = img_file.read()
+                    img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+                return [Image(base64=img_base64)]
+            except Exception as e:
+                return [Plain(f"[Error loading image: {e}]")]
+
         Inimage = False
         return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
     
