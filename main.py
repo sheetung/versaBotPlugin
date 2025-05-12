@@ -103,26 +103,9 @@ class versaBotPlugin(BasePlugin):
             launcher_type = str(ctx.event.launcher_type)
             
             # 获取黑/白名单
-            mode = self.ap.pipeline_cfg.data['access-control']['mode']
-            sess_list = self.ap.pipeline_cfg.data['access-control'][mode]
-
-            found = False
-            if (launcher_type== 'group' and 'group_*' in sess_list) \
-                or (launcher_type == 'person' and 'person_*' in sess_list):
-                found = True
-            else:
-                for sess in sess_list:
-                    if sess == f"{launcher_type}_{launcher_id}":
-                        found = True
-                        break 
-            ctn = False
-            if mode == 'whitelist':
-                ctn = found
-            else:
-                ctn = not found
-            if not ctn:
-                # print(f'您被杀了哦')
+            if not self._should_process(ctx):
                 return
+        
              # 获取发送者信息
             # sender_id = "Unknown"
             # if hasattr(ctx.event, 'query'):
@@ -242,6 +225,35 @@ class versaBotPlugin(BasePlugin):
             parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
         Inimage = False
         return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
+    
+    def _should_process(self, ctx: EventContext) -> bool:
+        """判断是否处理该消息"""
+        # 处理黑/白名单
+        launcher_id = str(ctx.event.launcher_id)
+        launcher_type = str(ctx.event.launcher_type)
+
+        mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
+        sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
+
+        # self.ap.logger.info(f'mode={mode}\n')
+        found = False
+        if (launcher_type== 'group' and 'group_*' in sess_list) \
+            or (launcher_type == 'person' and 'person_*' in sess_list):
+            found = True
+        else:
+            for sess in sess_list:
+                if sess == f"{launcher_type}_{launcher_id}":
+                    found = True
+                    break 
+        ctn = False
+        if mode == 'whitelist':
+            ctn = found
+        else:
+            ctn = not found
+        if not ctn:
+            self.ap.logger.info(f'根据访问控制，插件[KeysChat]忽略消息\n')
+            return False
+        return True
     
     def __del__(self):
         pass

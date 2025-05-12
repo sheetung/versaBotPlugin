@@ -65,7 +65,7 @@ def main():
             config = json.load(f)
             api_key = config['apikey']
     except FileNotFoundError:
-        print("错误：当前目录未找到 config.json 文件", end='')
+        print("错误：当前目录未找到 weather_key.json 文件", end='')
     except json.JSONDecodeError:
         print("错误：config.json 格式不正确", end='')
     except KeyError:
