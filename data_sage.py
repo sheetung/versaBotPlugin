@@ -8,7 +8,9 @@ Usage:
 import json
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+china_tz = timezone(timedelta(hours=8))
 
 class SageSystem:
     """核心功能类"""
@@ -57,12 +59,12 @@ class SageSystem:
         )
         expire_time = datetime.fromisoformat(record) + timedelta(hours=duration)
         
-        return datetime.now() < expire_time
+        return datetime.now(china_tz) < expire_time
 
     def set_user(self, user_id: str):
         """记录用户操作时间"""
         data = self._load_data()
-        data[str(user_id)] = datetime.now().isoformat()  # 确保存储为字符串
+        data[str(user_id)] = datetime.now(china_tz).isoformat()  # 确保存储为字符串
         
         with open(self.data_path, 'w') as f:
             json.dump(data, f, indent=2)
@@ -74,7 +76,7 @@ class SageSystem:
         
         data = self._load_data()
         record_time = datetime.fromisoformat(data[str(user_id)])
-        elapsed = datetime.now() - record_time
+        elapsed = datetime.now(china_tz) - record_time
         duration = self.config.get(command, {}).get(
             'duration', self.config['default_duration']
         )
