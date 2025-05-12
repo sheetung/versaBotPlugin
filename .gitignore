@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 *.json
+data/html2img/output
