@@ -95,13 +95,26 @@ class versaBotPlugin(BasePlugin):
             launcher_type = str(ctx.event.launcher_type)
             
             # 获取黑/白名单
-            mode = self.ap.pipeline_cfg.data['access-control']['mode']
-            sess_list = self.ap.pipeline_cfg.data['access-control'][mode]
+            # mode = self.ap.pipeline_cfg.data['access-control']['mode']
+            # sess_list = self.ap.pipeline_cfg.data['access-control'][mode]
 
-            # 临时适配langbot4.0特性
-            if not mode or not sess_list:
-                mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
-                sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
+            # # 临时适配langbot4.0特性
+            # if not mode or not sess_list:
+            #     mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
+            #     sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
+            pipeline_data = getattr(self.ap.pipeline_cfg, 'data', None)
+            if not pipeline_data:
+                # 尝试从 ctx 中兜底
+                try:
+                    mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
+                    sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
+                except Exception as e:
+                    logger.error(f"无法从 ctx 获取 access-control 设置: {e}")
+                    return
+            else:
+                mode = pipeline_data['access-control']['mode']
+                sess_list = pipeline_data['access-control'][mode]
+
             found = False
             if (launcher_type== 'group' and 'group_*' in sess_list) \
                 or (launcher_type == 'person' and 'person_*' in sess_list):
