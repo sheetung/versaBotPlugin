@@ -1,6 +1,6 @@
 # versaBotPlugin
 
-一个基于 [QChatGPT](https://github.com/RockChinQ/QChatGPT) 的多功能插件，允许用户在 `data` 目录下自由编写和扩展自己的小程序，轻松实现各种实用功能，如天气查询、图片生成、运势预测等。
+一个基于 [LangBot](https://github.com/RockChinQ/LangBot) 的多功能插件，允许用户在 `data` 目录下自由编写和扩展自己的小程序，轻松实现各种实用功能，如天气查询、图片生成、运势预测等。
 
 **！！！暂未上架**如自行使用出错，联系群反馈
 
