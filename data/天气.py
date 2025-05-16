@@ -85,6 +85,7 @@ def main():
     
     if realtime_weather and forecast_weather:
         now = realtime_weather['now']
+        print(f'atper_on') # at user
         print(f"📍位置：{city_name}")
         print("-"*7)
         print(f"实时天气：{now['text']}")

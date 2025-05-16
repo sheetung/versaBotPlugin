@@ -28,6 +28,7 @@ async def fetch_color_image(max_retries=3):
         await asyncio.sleep(1)
 
 async def main():
+    ssnum = 10
     """主函数处理参数解析和多请求逻辑"""
     # 解析请求次数参数（支持 x10、10次 等格式）
     n = 1  # 默认值
@@ -41,13 +42,13 @@ async def main():
             print('\n---\n')
             
     # 并发请求
-    tasks = [fetch_color_image() for _ in range(max(1, min(n, 10)))]
+    tasks = [fetch_color_image() for _ in range(max(1, min(n, ssnum)))]
     results = await asyncio.gather(*tasks)
     
     # 输出结果
     # print(f"\n🖼️ 共获取 {len([r for r in results if r.startswith('http')]}/{n} 张图片"
-    if n > 10:
-            print(f'大人您看了{n}下，但是不行哦，只能看10下')
+    if n > ssnum:
+            print(f'大人您看了{n}下，但是不行哦，只能看{ssnum}下')
             print('\n---\n')
     for i, result in enumerate(results, 1):
         # prefix = "[成功]" if result.startswith("http") else "[失败]"

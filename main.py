@@ -9,13 +9,14 @@ import asyncio  # 导入 asyncio
 from pkg.platform.types import *
 from .forward import ForwardMessage 
 from typing import List, Dict
-from .data_sage import SageSystem
+# from .data_sage import SageSystem
 import base64
 from io import BytesIO
+from plugins.versaBotPlugin.data.贤者模式 import SageSystem
 
 @register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
-          version="0.3", 
+          version="0.7", 
           author="sheetung")
 class versaBotPlugin(BasePlugin):
 
@@ -31,7 +32,7 @@ class versaBotPlugin(BasePlugin):
                 'summary': '最新套餐信息',
                 'source': '流量卡小助手',
                 'user_id': '1048643088',    # 自定义QQ号
-                'nickname': '套餐小助手',  # 自定义昵称
+                'nickname': '流量卡小助手',  # 自定义昵称
                 'mode': 'multi'  # single/multi 对应单条发出还是分条发出
             },
             '看妹妹': {  
@@ -53,6 +54,16 @@ class versaBotPlugin(BasePlugin):
                 'user_id': '1048643088',    
                 'nickname': 'bot妹妹',
                 'mode': 'multi'   
+            },
+            '贤者模式': {  
+                'enable': False,  
+                'dftcmd': 'off',
+                'prompt': '',
+                'summary': '',
+                'source': '',
+                'user_id': '',    
+                'nickname': '',
+                'mode': ''   
             }
         }
 
@@ -159,8 +170,13 @@ class versaBotPlugin(BasePlugin):
                     await ctx.reply(message_c)
                     return
                 try:
-                    if cmd in self.forward_config and cmd1 == str(sender_id):
-                        cmd1 = self.forward_config[cmd]['dftcmd']
+                    if cmd in self.forward_config :  #在config里面
+                        if cmd1 == str(sender_id) and self.forward_config[cmd]['dftcmd'] != 'off': # 但是没传入参数
+                            # 指定‘dftcmd’默认参数
+                            cmd1 = self.forward_config[cmd]['dftcmd']
+                        elif self.forward_config[cmd]['dftcmd'] == 'off' : # 有参数传入但是不希望传参
+                            cmd1 = str(sender_id)
+                            
                     result = subprocess.check_output(['python', script_path, cmd1], text=True, timeout=60)  # 设置超时为60秒
                     # self.ap.logger.info(f'[verbot]result---\n{result}\n---')
                     if cmd in self.forward_config and self.forward_config[cmd]['enable']:
@@ -263,7 +279,7 @@ class versaBotPlugin(BasePlugin):
         if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
             message = message.replace("atper_on", "")  # 从消息中移除"send_on"
-        
+            self.ap.logger.info(f'message = {message}')
         # 处理网络图片
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             Inimage = True
@@ -274,6 +290,11 @@ class versaBotPlugin(BasePlugin):
             parts.append(Image(url=image_url))  # 添加图像消息
             last_end = end  # 更新最后结束位置
 
+        if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
+            print(f'1in={last_end +1 < len(message)}')
+            parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
+        else: # 纯文本部分
+            parts.append(Plain(message))
         # 处理本地图片
         # self.ap.logger.info(f'{image_pattern.finditer(message)}')
         for match in local_image_pattern.finditer(message):  # 查找所有匹配的本地图像链接

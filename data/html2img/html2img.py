@@ -1,6 +1,7 @@
 import os
 import subprocess
 import uuid
+from PIL import Image
 
 class HtmlToImage:
     def __init__(self, wkhtmltoimage_path='/usr/local/bin/wkhtmltoimage'):
@@ -54,7 +55,7 @@ class HtmlToImage:
                     box-shadow: 0 0 32px rgba(0,0,0,0.08);
                     white-space: pre-wrap;
                     word-wrap: break-word;
-                    font-family: '{font_name}', sans-serif;
+                    font-family: '{font_name}', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', 'Symbola', sans-serif;
                     font-size: 50px;
                     line-height: 1.6;
                 }}
@@ -85,7 +86,7 @@ class HtmlToImage:
         return html_template
 
 
-    def convert_text_to_image(self, text, font_path, imgdata, output_path=None, width=None, background="#ffffff", border_radius="16px",horizontal_padding=40):
+    def convert_text_to_image(self, text, font_path, imgdata, output_path=None, width=None, background="#ffffff", border_radius="16px",horizontal_padding=40, quality=60):
         """将文本转为图片"""
         if not os.path.exists(font_path):
             raise FileNotFoundError(f"Font file not found: {font_path}")
@@ -120,12 +121,17 @@ class HtmlToImage:
             "--encoding", "utf-8",
             "--disable-smart-width",
             "--width", str(width),
+            "--quality", str(quality),  # 添加质量参数
             html_file,
             output_path
         ]
 
         try:
             subprocess.run(command, check=True)
+            # 图片压缩处理
+            if quality < 100:  # 只有当需要压缩时才处理
+                with Image.open(output_path) as img:
+                    img.save(output_path, quality=quality, optimize=True)
         except subprocess.CalledProcessError as e:
             os.remove(html_file)
             raise RuntimeError("wkhtmltoimage failed") from e
