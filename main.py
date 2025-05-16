@@ -92,6 +92,7 @@ class versaBotPlugin(BasePlugin):
         async with self.lock:  # 使用锁确保线程安全
             # receive_text = ctx.event.text_message
             msg = str(ctx.event.message_chain).strip()
+            # self.ap.logger.info(f'[verbot]msg---\n{msg}\n---')
             # 修改正则表达式，保留 @ 后面的 QQ 号
             cleaned_text = re.sub(r'@(\d+)', r' \1', msg).strip()  # 清理文本，保留 QQ     
             cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
@@ -292,7 +293,7 @@ class versaBotPlugin(BasePlugin):
 
         if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
             parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
-        else: # 纯文本部分
+        elif Inimage == False: # 纯文本部分
             parts.append(Plain(message))
         # 处理本地图片
         # self.ap.logger.info(f'{image_pattern.finditer(message)}')
