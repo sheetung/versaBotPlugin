@@ -115,7 +115,7 @@ class versaBotPlugin(BasePlugin):
             #     sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
             pipeline_data = getattr(self.ap.pipeline_cfg, 'data', None)
             if not pipeline_data:
-                # 尝试从 ctx 中兜底
+                # add langbot 4.0 适配
                 try:
                     mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
                     sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
@@ -279,7 +279,7 @@ class versaBotPlugin(BasePlugin):
         if "atper_on" in message:
             parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
             message = message.replace("atper_on", "")  # 从消息中移除"send_on"
-            self.ap.logger.info(f'message = {message}')
+            # self.ap.logger.info(f'message = {message}')
         # 处理网络图片
         for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
             Inimage = True
@@ -291,7 +291,6 @@ class versaBotPlugin(BasePlugin):
             last_end = end  # 更新最后结束位置
 
         if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
-            print(f'1in={last_end +1 < len(message)}')
             parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
         else: # 纯文本部分
             parts.append(Plain(message))

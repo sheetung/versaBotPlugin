@@ -2,6 +2,11 @@
 
 一个基于 [QChatGPT](https://github.com/RockChinQ/QChatGPT) 的多功能插件，允许用户在 `data` 目录下自由编写和扩展自己的小程序，轻松实现各种实用功能，如天气查询、图片生成、运势预测等。
 
+**！！！暂未上架**如自行使用出错，联系群反馈
+
+[![QQ群](https://img.shields.io/badge/QQ群-965312424-green)](https://qm.qq.com/cgi-bin/qm/qr?k=en97YqjfYaLpebd9Nn8gbSvxVrGdIXy2&jump_from=webapi&authKey=41BmkEjbGeJ81jJNdv7Bf5EDlmW8EHZeH7/nktkXYdLGpZ3ISOS7Ur4MKWXC7xIx)
+
+
 ## 🌟 特性
 
 - **高度可扩展**：用户可以在 `data` 目录下自由编写 Python 脚本，快速扩展新功能。
@@ -45,11 +50,16 @@
 
    - 修改后，命令触发方式将变为 `/菜单`。
 
-## 📚 示例功能
+## 😋 特别功能
+
+- **合并转发**：需配置napcat http
+
+
+## 📚 data功能
 
 - **天气查询**：输入 `/天气 北京`，获取北京的天气信息。
-- **运势预测**：输入 `/运势 星座`，获取星座运势。
-- **随机图片**：输入 `/色图`，随机返回一张图片。
+
+- ...
 
 ## 📚 开发指南
 
@@ -65,8 +75,7 @@
   │   ├── 菜单.py
   │   ├── 天气.py
   │   └── 画图.py
-  ├── main.py
-  └── settings.json
+  └── main.py
   ```
 
 - **命令冲突**：如遇到命令冲突，可在 `main.py` 中修改命令前缀。
