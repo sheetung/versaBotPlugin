@@ -3,7 +3,7 @@ import uuid
 import os
 from html2img.html2img import HtmlToImage
 
-def get_news_with_date():
+def get_news_with_date_old():
     url = "http://api.suxun.site/api/sixs"
     params = {"type": "json"}
     
@@ -26,6 +26,33 @@ def get_news_with_date():
     except ValueError as e:
         return f"JSON解析失败: {e}"
 
+def get_news_with_date():
+    # 修改API URL
+    url = "https://60s-api.viki.moe/v2/60s"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # 检查HTTP状态码
+        
+        data = response.json()
+        
+        if "data" in data and "date" in data["data"] and "news" in data["data"] and "day_of_week" in data["data"]:
+            # 拼接日期和星期
+            date_with_week = f"{data['data']['date']} {data['data']['day_of_week']}"
+            news_with_order = []
+            for index, news_item in enumerate(data["data"]["news"], 1):
+                news_with_order.append(f"{index}. {news_item}")
+            return {
+                "date": date_with_week,
+                "news": news_with_order
+            }
+        else:
+            return "响应中缺少日期、新闻或星期字段"
+            
+    except requests.exceptions.RequestException as e:
+        return f"请求失败: {e}"
+    except ValueError as e:
+        return f"JSON解析失败: {e}"
+
 # 使用示例
 if __name__ == "__main__":
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +69,7 @@ if __name__ == "__main__":
     # else:
     #     print(result)  # 输出错误信息
 
-    target_name = f"output_zb_{result['date']}.png"        # 目标文件/文件夹名
+    target_name = f"zb_{result['date'][:10]}.png"        # 目标文件/文件夹名
     target_path = os.path.join(BASE_DIR, 'html2img', 'output', target_name)
     # 判断是否已经生成
     if os.path.exists(target_path):
@@ -59,7 +86,7 @@ if __name__ == "__main__":
             text=full_text,
             width=1080,
             font_path=font_path,
-            imgdata = f'zb_{result['date']}',
+            img_name = target_name,
             background="#f5f5f5",
             border_radius="35px",
             horizontal_padding=40

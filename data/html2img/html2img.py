@@ -86,7 +86,7 @@ class HtmlToImage:
         return html_template
 
 
-    def convert_text_to_image(self, text, font_path, imgdata, output_path=None, width=None, background="#ffffff", border_radius="16px",horizontal_padding=40, quality=60):
+    def convert_text_to_image(self, text, font_path, img_name, output_path=None, width=None, background="#ffffff", border_radius="16px",horizontal_padding=40, quality=60):
         """将文本转为图片"""
         if not os.path.exists(font_path):
             raise FileNotFoundError(f"Font file not found: {font_path}")
@@ -111,8 +111,7 @@ class HtmlToImage:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             output_dir = os.path.join(base_dir, "output")
             os.makedirs(output_dir, exist_ok=True)
-            filename = f"output_{imgdata}.png"
-            output_path = os.path.join(output_dir, filename)
+            output_path = os.path.join(output_dir, img_name)
             # html_file = os.path.join(output_dir, html_file)
 
         command = [
