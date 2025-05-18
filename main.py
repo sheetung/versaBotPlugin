@@ -64,6 +64,16 @@ class versaBotPlugin(BasePlugin):
                 'user_id': '',    
                 'nickname': '',
                 'mode': ''   
+            },
+            '热搜': {  
+                'enable': True,  
+                'dftcmd': 'off',
+                'prompt': '微博热搜榜',
+                'summary': '微博热搜榜',
+                'source': '微博热搜榜',
+                'user_id': '1048643088',    
+                'nickname': '追热点的沙耶香',
+                'mode': ''   
             }
         }
 
