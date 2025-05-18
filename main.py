@@ -12,7 +12,7 @@ from typing import List, Dict
 # from .data_sage import SageSystem
 import base64
 from io import BytesIO
-from plugins.versaBotPlugin.data.贤者模式 import SageSystem
+from plugins.versaBotPlugin.func.贤者模式 import SageSystem
 
 @register(name="versaBotPlugin", 
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
@@ -172,7 +172,7 @@ class versaBotPlugin(BasePlugin):
             #         elif hasattr(sender, 'nickname') and sender.nickname:
             #             sender_id = sender.nickname
 
-            script_path = os.path.join(os.path.dirname(__file__), 'data', f"{cmd}.py")
+            script_path = os.path.join(os.path.dirname(__file__), 'func', f"{cmd}.py")
             if os.path.exists(script_path):  # 检查脚本是否存在
                 # 贤者模式判断
                 if self.sagesys.check_user(sender_id, cmd):
