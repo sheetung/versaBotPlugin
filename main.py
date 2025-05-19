@@ -1,15 +1,13 @@
 from pkg.plugin.context import register, handler, BasePlugin, APIHost, EventContext
-# from pkg.plugin.events import PersonNormalMessageReceived, GroupNormalMessageReceived
 from pkg.plugin.events import *  # 导入事件类
 import subprocess
 import os
 import re
 import asyncio  # 导入 asyncio
-# from mirai import Image, Plain
 from pkg.platform.types import *
 from .forward import ForwardMessage 
 from typing import List, Dict
-# from .data_sage import SageSystem
+
 import base64
 from io import BytesIO
 from plugins.versaBotPlugin.func.贤者模式 import SageSystem
@@ -18,7 +16,7 @@ from plugins.versaBotPlugin.func.贤者模式 import SageSystem
           description="一个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
           version="0.7", 
           author="sheetung")
-class versaBotPlugin(BasePlugin):
+class MyPlugin(BasePlugin):
 
     def __init__(self, host: APIHost):
         # pass
@@ -76,7 +74,9 @@ class versaBotPlugin(BasePlugin):
                 'mode': ''   
             }
         }
-
+    # 异步初始化
+    async def initialize(self):
+        pass
     lock = asyncio.Lock()  # 创建一个锁以确保线程安全
     command_queue = asyncio.Queue()  # 创建一个队列以存储待处理的命令
 
@@ -115,15 +115,8 @@ class versaBotPlugin(BasePlugin):
             sender_id = ctx.event.sender_id
             launcher_id = str(ctx.event.launcher_id)
             launcher_type = str(ctx.event.launcher_type)
-            
             # 获取黑/白名单
-            # mode = self.ap.pipeline_cfg.data['access-control']['mode']
-            # sess_list = self.ap.pipeline_cfg.data['access-control'][mode]
-
             # # 临时适配langbot4.0特性
-            # if not mode or not sess_list:
-            #     mode = ctx.event.query.pipeline_config['trigger']['access-control']['mode']
-            #     sess_list = ctx.event.query.pipeline_config['trigger']['access-control'][mode]
             pipeline_data = getattr(self.ap.pipeline_cfg, 'data', None)
             if not pipeline_data:
                 # add langbot 4.0 适配
@@ -152,25 +145,8 @@ class versaBotPlugin(BasePlugin):
             else:
                 ctn = not found
             if not ctn:
-                # print(f'您被杀了哦')
+                print(f'您被杀了哦')
                 return
-             # 获取发送者信息
-            # sender_id = "Unknown"
-            # if hasattr(ctx.event, 'query'):
-            #     message_event = ctx.event.query.message_event
-            #     if hasattr(message_event, 'sender'):
-            #         sender = message_event.sender
-            #         # 优先使用qq id
-            #         if hasattr(sender, 'id') and sender.id:
-            #             sender_id = sender.id
-            #         elif hasattr(sender, 'card') and sender.card:
-            #             sender_id = sender.card
-            #         # 其次使用群昵称
-            #         elif hasattr(sender, 'member_name') and sender.member_name:
-            #             sender_id = sender.member_name
-            #         # 最后使用QQ昵称
-            #         elif hasattr(sender, 'nickname') and sender.nickname:
-            #             sender_id = sender.nickname
 
             script_path = os.path.join(os.path.dirname(__file__), 'func', f"{cmd}.py")
             if os.path.exists(script_path):  # 检查脚本是否存在
@@ -257,28 +233,6 @@ class versaBotPlugin(BasePlugin):
     #             messages.append({"content": content})
     #     return messages
 
-    # def convert_message(self, message, sender_id):
-    #     parts = []
-    #     last_end = 0
-    #     Inimage = False
-    #     image_pattern = re.compile(r'!\[.*?\]\((https?://\S+)\)')  # 定义图像链接的正则表达式
-    #     # 检查消息中是否包含at指令
-    #     if "atper_on" in message:
-    #         parts.append(At(target=sender_id))  # 在消息开头加上At(sender_id)
-    #         message = message.replace("atper_on", "")  # 从消息中移除"send_on"
-    #     for match in image_pattern.finditer(message):  # 查找所有匹配的图像链接
-    #         Inimage = True
-    #         start, end = match.span()  # 获取匹配的起止位置
-    #         if start > last_end:  # 如果有文本在图像之前
-    #             parts.append(Plain(message[last_end:start]))  # 添加纯文本部分
-    #         image_url = match.group(1)  # 提取图像 URL
-    #         parts.append(Image(url=image_url))  # 添加图像消息
-    #         last_end = end  # 更新最后结束位置
-    #     if last_end +1 < len(message) and Inimage:  # 如果还有剩余文本
-    #         print(f'1in={last_end +1 < len(message)}')
-    #         parts.append(Plain(message[last_end:]))  # 添加剩余的纯文本
-    #     Inimage = False
-    #     return parts if parts else [Plain(message)]  # 返回构建好的消息列表，如果没有部分则返回纯文本消息
     def convert_message(self, message, sender_id):
         parts = []
         last_end = 0
