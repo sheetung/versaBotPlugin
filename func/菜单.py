@@ -4,7 +4,7 @@ def get_py_files(directory):
     """获取指定目录下的所有.py文件，排除菜单本身"""
     py_files = []
     for file in os.listdir(directory):
-        if file.endswith('.py') and file != '菜单.py' and file != 'xz.py' and file != '__init__.py':  # 排除菜单本身
+        if file.endswith('.py') and file != '菜单.py' and file != '__init__.py':  # 排除菜单本身
             py_files.append(file)
     return py_files
 
@@ -14,8 +14,8 @@ def generate_menu(py_files):
     for index, file in enumerate(py_files, start=1):
         # 去掉.py扩展名，作为菜单项名称
         menu_item = os.path.splitext(file)[0]
-        menu.append(f"{index}. {menu_item}")
-    menu.append(f"{index+1}. {'打卡'}")
+        menu.append(f"{index}. <{menu_item}>")
+    menu.append(f"{index+1}. <{'打卡'}>")
     return "\n".join(menu)
 
 async def main():
