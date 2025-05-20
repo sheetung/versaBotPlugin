@@ -72,6 +72,16 @@ class MyPlugin(BasePlugin):
                 'user_id': '1048643088',    
                 'nickname': '追热点的沙耶香',
                 'mode': ''   
+            },
+            '猫眼': {  
+                'enable': True,  
+                'dftcmd': 'off',
+                'prompt': '猫眼票房排行榜',
+                'summary': '猫眼票房排行榜',
+                'source': '猫眼票房排行榜',
+                'user_id': '1048643088',    
+                'nickname': '猫眼沙耶香',
+                'mode': ''   
             }
         }
     # 异步初始化
@@ -116,7 +126,7 @@ class MyPlugin(BasePlugin):
             launcher_id = str(ctx.event.launcher_id)
             launcher_type = str(ctx.event.launcher_type)
             # 获取黑/白名单
-            # # 临时适配langbot4.0特性
+            # 临时适配langbot4.0特性
             pipeline_data = getattr(self.ap.pipeline_cfg, 'data', None)
             if not pipeline_data:
                 # add langbot 4.0 适配
@@ -145,7 +155,7 @@ class MyPlugin(BasePlugin):
             else:
                 ctn = not found
             if not ctn:
-                print(f'您被杀了哦')
+                # print(f'您被杀了哦')
                 return
 
             script_path = os.path.join(os.path.dirname(__file__), 'func', f"{cmd}.py")
