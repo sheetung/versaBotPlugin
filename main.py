@@ -13,8 +13,8 @@ from io import BytesIO
 from plugins.versaBotPlugin.func.贤者模式 import SageSystem
 
 @register(name="versaBotPlugin", 
-          description="兼容空格分割和无空格前缀匹配的插件", 
-          version="1.1.0", 
+          description="个小插件运行插件不必开关程序直接运行程序简单（可以用gpt直接写功能添加）", 
+          version="1.12", 
           author="sheetung")
 class MyPlugin(BasePlugin):
 
