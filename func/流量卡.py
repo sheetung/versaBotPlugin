@@ -7,9 +7,41 @@ from urllib.parse import urljoin
 BASE_URL = "https://172.lot-ml.com"
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
 
+# 国内省份列表（包含全称和简称）
+PROVINCES = [
+    "北京市", "北京", "天津市", "天津", "河北省", "河北", "山西省", "山西",
+    "内蒙古自治区", "内蒙古", "辽宁省", "辽宁", "吉林省", "吉林", "黑龙江省", "黑龙江",
+    "上海市", "上海", "江苏省", "江苏", "浙江省", "浙江", "安徽省", "安徽",
+    "福建省", "福建", "江西省", "江西", "山东省", "山东", "河南省", "河南",
+    "湖北省", "湖北", "湖南省", "湖南", "广东省", "广东", "广西壮族自治区", "广西",
+    "海南省", "海南", "重庆市", "重庆", "四川省", "四川", "贵州省", "贵州",
+    "云南省", "云南", "西藏自治区", "西藏", "陕西省", "陕西", "甘肃省", "甘肃",
+    "青海省", "青海", "宁夏回族自治区", "宁夏", "新疆维吾尔自治区", "新疆",
+    "香港特别行政区", "香港", "澳门特别行政区", "澳门", "台湾省", "台湾"
+]
+
 def get_all_products(keyword):
+    # 判断关键词类型并选择对应的页面路径
+    # 检查是否为数字类型关键词（包含数字）
+    is_number = bool(re.search(r'\d', keyword))
+    # 检查是否为省份关键词（不区分大小写）
+    keyword_lower = keyword.lower()
+    is_province = any(p.lower() == keyword_lower for p in PROVINCES)
+    
+    # 根据关键词类型选择不同的页面
+    if is_province:
+        path = "/producten/tyindex/3abcd2e80b9b4694"
+        # print(f"检测到省份关键词，使用省份专属页面: {path}")
+    elif is_number:
+        path = "/ProductEn/Index/3abcd2e80b9b4694"
+        # print(f"检测到数字类型关键词，使用数字专属页面: {path}")
+    else:
+        # 其他情况默认使用原页面
+        path = "/ProductEn/Index/3abcd2e80b9b4694"
+        # print(f"使用默认页面: {path}")
+    
     try:
-        response = requests.get(urljoin(BASE_URL, "/ProductEn/Index/3abcd2e80b9b4694"), headers=HEADERS)
+        response = requests.get(urljoin(BASE_URL, path), headers=HEADERS)
         response.raise_for_status()
     except Exception as e:
         print(f"请求失败: {e}")
@@ -34,9 +66,8 @@ def get_all_products(keyword):
             if not re.search(re.escape(keyword), product_name, re.I):
                 continue
             
-            # 关键去重逻辑 -------------------------------------------------
+            # 关键去重逻辑
             if product_name in seen_names:
-                # print(f"发现重复名称: {product_name}，已跳过")
                 continue
             seen_names.add(product_name)
             
@@ -46,22 +77,17 @@ def get_all_products(keyword):
                 continue
             detail_link = urljoin(BASE_URL, a_tag['href'])
             if detail_link in seen_links:
-                # print(f"发现重复链接: {detail_link}，已跳过")
                 continue
             seen_links.add(detail_link)
-            # -----------------------------------------------------------
             
             all_products.append({
                 "element": li,
                 "detail_link": detail_link
             })
     
-    # print(f"有效产品数量: {len(all_products)} (去重后)")
     return all_products
 
-# --------------------------------------------------
 # 数据提取函数
-# --------------------------------------------------
 def extract_product_data(product_li):
     # 提取基础信息
     img_tag = product_li.find('dt').find('img')
@@ -89,14 +115,11 @@ def extract_product_data(product_li):
     return {
         "md图片":f"![图片]({urljoin(BASE_URL, img_tag['src']) if img_tag else None})",
         "产品名称": product_name,
-        # "主推产品": zhutui,
-        # "适用年龄": age_span.get_text(strip=True).replace('周岁', '') if age_span else '',
-        # "领取人数": receive_span.get_text(strip=True).replace('人领取', '') if receive_span else '',
         **flow_data
     }
 
 def main():
-    # 命令行参数处理（默认搜索词为"电信"）
+    # 命令行参数处理（默认搜索词为"19元"）
     keyword = sys.argv[1] if len(sys.argv) > 1 else "19元"
     matched_products = get_all_products(keyword)
 
@@ -117,9 +140,10 @@ def main():
             # 打印单条结果
             for key, value in data.items():
                 if key == "md图片":
-                    print(value,end='')
+                    print(value,end='\n')
                     continue
                 print(f"{key}: {value}")
             print('\n---\n')
+
 if __name__ == "__main__":
     main()

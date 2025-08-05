@@ -28,7 +28,7 @@ def get_news_with_date_old():
 
 def get_news_with_date():
     # 修改API URL
-    url = "https://60s-api.viki.moe/v2/60s"
+    url = "https://60s-api-cf.viki.moe/v2/60s"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()  # 检查HTTP状态码
@@ -69,7 +69,15 @@ if __name__ == "__main__":
     # else:
     #     print(result)  # 输出错误信息
 
-    target_name = f"zb_{result['date'][:10]}.png"        # 目标文件/文件夹名
+    # target_name = f"zb_{result['date'][:10]}.png"        # 目标文件/文件夹名
+    if isinstance(result, dict) and "date" in result:
+        # 截取前10位确保日期格式（如2025-06-29）
+        date_str = result["date"][:10]
+        target_name = f"zb_{date_str}.png"
+    else:
+        # 异常情况使用UUID避免文件名重复
+        target_name = f"zb_error_{uuid.uuid4().hex[:8]}.png"
+        print(f"警告：无效的结果格式，使用默认文件名 {target_name}")
     target_path = os.path.join(BASE_DIR, 'html2img', 'output', target_name)
     # 判断是否已经生成
     if os.path.exists(target_path):

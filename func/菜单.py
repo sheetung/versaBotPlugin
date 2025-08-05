@@ -16,6 +16,7 @@ def generate_menu(py_files):
         menu_item = os.path.splitext(file)[0]
         menu.append(f"{index}. <{menu_item}>")
     menu.append(f"{index+1}. <{'打卡'}>")
+    menu.append(f"{index+2}. <{'赞我'}>")
     return "\n".join(menu)
 
 async def main():
