@@ -1,6 +1,7 @@
 import os
 import subprocess
 import uuid
+import re  # 用于文件名校验
 from PIL import Image
 
 class HtmlToImage:
@@ -11,25 +12,18 @@ class HtmlToImage:
 
     def _generate_html(self, text, font_path, font_name, width=600, background="#ffffff", border_radius="16px", horizontal_padding=40):
         font_path_web = font_path.replace("\\", "/")
-        content_width = width - horizontal_padding * 2  # 留出左右 padding
-
-        # 将文本按行拆分成段落 <p> 标签
+        content_width = width - horizontal_padding * 2  
         paragraphs = [p.strip() for p in text.strip().split("\n") if p.strip()]
         paragraph_html = ""
 
         for i, para in enumerate(paragraphs):
             if i == 0:
-                # 段首：加粗、居中
                 paragraph_html += f"<p class='first'>{para}</p>"
                 paragraph_html += "<hr class='separator'>"
             elif i == len(paragraphs) - 1:
-                # 段尾：浅色、居右
                 paragraph_html += f"<p class='last'>{para}</p>"
             else:
-                # 中间段落
                 paragraph_html += f"<p>{para}</p>"
-                # 可选：每隔一段添加分割线（可删除下行以不添加）
-                # if i % 2 == 1:
                 paragraph_html += "<hr class='separator'>"
 
         html_template = f"""
@@ -87,18 +81,27 @@ class HtmlToImage:
 
 
     def convert_text_to_image(self, text, font_path, img_name, output_path=None, width=None, background="#ffffff", border_radius="16px",horizontal_padding=40, quality=60):
-        """将文本转为图片"""
+        """
+        核心逻辑不变，新增：
+        1. 文件名合法性校验（解决“无效结果格式”警告）
+        2. 兼容网络异常场景（虽然本函数不涉及网络，但调用方可能有，需规范错误传递）
+        """
+        # ================= 新增：文件名校验 =================
+        # 过滤非法字符，避免触发默认错误文件名
+        valid_img_name = re.sub(r'[^\w\.-]', '_', img_name)  
+        if not valid_img_name.lower().endswith('.png'):
+            valid_img_name += '.png'
+        img_name = valid_img_name
+
         if not os.path.exists(font_path):
             raise FileNotFoundError(f"Font file not found: {font_path}")
 
         font_name = os.path.splitext(os.path.basename(font_path))[0]
 
-        # 自动估算宽度（默认最大600px）
         if width is None:
-            estimated_width = min(600, max(300, len(text) * 15))  # 简单估算
+            estimated_width = min(600, max(300, len(text) * 15))  
             width = estimated_width
 
-        # 生成 HTML 文件
         html_content = self._generate_html(
             text, font_path, font_name, width, background, border_radius, horizontal_padding
         )
@@ -106,13 +109,11 @@ class HtmlToImage:
         with open(html_file, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        # 默认输出目录
         if output_path is None:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             output_dir = os.path.join(base_dir, "output")
             os.makedirs(output_dir, exist_ok=True)
             output_path = os.path.join(output_dir, img_name)
-            # html_file = os.path.join(output_dir, html_file)
 
         command = [
             self.wkhtmltoimage_path,
@@ -120,46 +121,45 @@ class HtmlToImage:
             "--encoding", "utf-8",
             "--disable-smart-width",
             "--width", str(width),
-            "--quality", str(quality),  # 添加质量参数
+            "--quality", str(quality),  
             html_file,
             output_path
         ]
 
         try:
             subprocess.run(command, check=True)
-            # 图片压缩处理
-            if quality < 100:  # 只有当需要压缩时才处理
+            if quality < 100:  
                 with Image.open(output_path) as img:
                     img.save(output_path, quality=quality, optimize=True)
         except subprocess.CalledProcessError as e:
             os.remove(html_file)
+            # 保持原错误抛出逻辑
             raise RuntimeError("wkhtmltoimage failed") from e
 
         os.remove(html_file)
         return output_path
 
-
-# 示例用法（main.py）
-# if __name__ == "__main__":
-#     font_path = os.path.join('html2img', 'tool', 'font', 'SourceHanSansSC-VF.ttf')
-#     wkhtmltoimage_path = os.path.abspath(os.path.join("D:", "wkhtmltox", "bin", "wkhtmltoimage.exe"))
-#     hti = HtmlToImage(wkhtmltoimage_path=wkhtmltoimage_path)
+# 示例用法（main 函数仅作演示，实际由其他脚本调用时无需关注）
+if __name__ == "__main__":
+    font_path = os.path.join('html2img', 'tool', 'font', 'SourceHanSansSC-VF.ttf')
+    wkhtmltoimage_path = os.path.abspath(os.path.join("D:", "wkhtmltox", "bin", "wkhtmltoimage.exe"))
+    hti = HtmlToImage(wkhtmltoimage_path=wkhtmltoimage_path)
     
-#     result = hti.convert_text_to_image(
-#         text=f"""
-#         2025年02月12日 星期一\n
-#         你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
-#         你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
-#         你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
-#         你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
-#         你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
-#         你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
-#         sheetung\n
-#         """,
-#         width = 1080,
-#         font_path=font_path,
-#         background="#f5f5f5",
-#         border_radius="35px",
-#         horizontal_padding = 40
-#     )
-#     print("图片生成成功:", result)
+    try:
+        result = hti.convert_text_to_image(
+            text=f"""
+            2025年02月12日 星期一\n
+            你好，这是使用自定义字体渲染的文字支持多行显示，自动高度适配。\n
+            sheetung\n
+            """,
+            width = 1080,
+            font_path=font_path,
+            img_name="测试文件名.png",  # 可观察文件名过滤效果
+            background="#f5f5f5",
+            border_radius="35px",
+            horizontal_padding = 40
+        )
+        print("图片生成成功:", result)
+    except Exception as e:
+        # 这里可捕获调用方的网络异常（如其他脚本请求新闻时的 ConnectionResetError）
+        print(f"执行失败: {str(e)}")
