@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>机器人功能页面</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 20px;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .emoji {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .description {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: #fff;
+      border-radius: 10px;
+      line-height: 1.6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 1rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🤖 我的功能清单</h1>
+  </header>
+
+  <section class="grid">
+    <!-- 功能卡片开始 -->
+    <div class="card">
+      <div class="emoji">🤲</div>
+      <div>摸头</div>
+    </div>
+    <div class="card">
+      <div class="emoji">🔍</div>
+      <div>必应</div>
+    </div>
+    <div class="card">
+      <div class="emoji">📰</div>
+      <div>早报</div>
+    </div>
+    <div class="card">
+      <div class="emoji">⛅</div>
+      <div>天气</div>
+    </div>
+    <div class="card">
+      <div class="emoji">🍗</div>
+      <div>KFC</div>
+    </div>
+    <div class="card">
+      <div class="emoji">🖼</div>
+      <div>看妹妹</div>
+    </div>
+    <div class="card">
+      <div class="emoji">🧘</div>
+      <div>贤者模式</div>
+    </div>
+    <div class="card">
+      <div class="emoji">📶</div>
+      <div>流量卡</div>
+    </div>
+    <div class="card">
+      <div class="emoji">⏰</div>
+      <div>打卡</div>
+    </div>
+    <div class="card">
+      <div class="emoji">👍</div>
+      <div>赞我</div>
+    </div>
+    <!-- 功能卡片结束 -->
+  </section>
+
+  <section class="description">
+    📝 输入 <code>&lt;任意功能名&gt;</code> 即可唤醒功能！<br/>
+    💬 想与我对话？使用 <code>ai</code> 前缀唤醒我哦~
+  </section>
+
+  <footer>
+    &copy; 2025 我的智能助手 - 功能展示页面
+  </footer>
+
+</body>
+</html>

@@ -17,7 +17,8 @@ def generate_menu(py_files):
         menu.append(f"{index}. <{menu_item}>")
     menu.append(f"{index+1}. <{'打卡'}>")
     menu.append(f"{index+2}. <{'赞我'}>")
-    return "\n".join(menu)
+    # return "\n".join(menu)
+    return "/home/sheetung/LangBotV4.0/plugins/versaBotPlugin/func/img/menu.png"
 
 async def main():
     directory = os.path.dirname(os.path.abspath(__file__))  # 获取当前脚本所在目录
