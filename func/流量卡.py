@@ -20,25 +20,31 @@ PROVINCES = [
     "香港特别行政区", "香港", "澳门特别行政区", "澳门", "台湾省", "台湾"
 ]
 
+# 运营商关键词（核心匹配词）
+OPERATORS = ["移动", "联通", "广电"]
+
+
+
 def get_all_products(keyword):
+    # 处理运营商关键词（提取核心词，如"移动卡"→"移动"）
+    core_keyword = keyword
+    for op in OPERATORS:
+        if op in keyword:
+            core_keyword = op  # 提取运营商核心词作为匹配依据
+            break
+    
     # 判断关键词类型并选择对应的页面路径
-    # 检查是否为数字类型关键词（包含数字）
     is_number = bool(re.search(r'\d', keyword))
-    # 检查是否为省份关键词（不区分大小写）
     keyword_lower = keyword.lower()
     is_province = any(p.lower() == keyword_lower for p in PROVINCES)
     
     # 根据关键词类型选择不同的页面
     if is_province:
         path = "/producten/tyindex/3abcd2e80b9b4694"
-        # print(f"检测到省份关键词，使用省份专属页面: {path}")
     elif is_number:
         path = "/ProductEn/Index/3abcd2e80b9b4694"
-        # print(f"检测到数字类型关键词，使用数字专属页面: {path}")
     else:
-        # 其他情况默认使用原页面
         path = "/ProductEn/Index/3abcd2e80b9b4694"
-        # print(f"使用默认页面: {path}")
     
     try:
         response = requests.get(urljoin(BASE_URL, path), headers=HEADERS)
@@ -61,9 +67,10 @@ def get_all_products(keyword):
             if not h1:
                 continue
             
-            # 名称模糊匹配
+            # 名称模糊匹配（使用处理后的核心关键词）
             product_name = h1.get_text(strip=True)
-            if not re.search(re.escape(keyword), product_name, re.I):
+            # 对运营商关键词进行宽松匹配，只要产品名包含核心运营商名称即可
+            if not re.search(re.escape(core_keyword), product_name, re.I):
                 continue
             
             # 关键去重逻辑
