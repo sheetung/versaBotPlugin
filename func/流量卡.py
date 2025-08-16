@@ -100,18 +100,23 @@ def extract_product_data(product_li):
     receive_span = b1_div.find('span', class_='yr')
     
     # 流量信息处理
-    flow_data = {"通用流量": "0G", "定向流量": "0G", "通话时长": "0分钟"}
+    flow_data = {"通用流量": "0G", "定向流量": "0G", "通话时长": "0分钟", "适用年龄": "年龄不限"}
     b2_div = product_li.find('div', class_='b2')
     if b2_div:
         for span in b2_div.find_all('span'):
             text = span.get_text(strip=True)
+            # print(f'当前文本={text}')
             if '通用流量' in text:
                 flow_data['通用流量'] = text.split()[-1]
             elif '定向流量' in text:
                 flow_data['定向流量'] = text.split()[-1]
             elif '通话时长' in text:
                 flow_data['通话时长'] = text.split()[-1]
-    
+    b1_div = product_li.find('div', class_='b1')
+    if b1_div:
+        xl_span = b1_div.find('span', class_='xl')
+        if xl_span:
+            flow_data['适用年龄'] = xl_span.get_text(strip=True)
     return {
         "md图片":f"![图片]({urljoin(BASE_URL, img_tag['src']) if img_tag else None})",
         "产品名称": product_name,
