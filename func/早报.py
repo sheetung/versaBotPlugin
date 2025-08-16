@@ -1,104 +1,157 @@
 import requests
-import uuid
 import os
+import time
+from datetime import datetime
 from html2img.html2img import HtmlToImage
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-def get_news_with_date_old():
-    url = "http://api.suxun.site/api/sixs"
-    params = {"type": "json"}
+def create_session_with_retries(max_retries=3, backoff_factor=1):
+    """创建带有重试机制的requests会话"""
+    session = requests.Session()
+    retry = Retry(
+        total=max_retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"]
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
+
+def fetch_news_from_api(url, session=None, timeout=15):
+    """从指定API获取新闻"""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9"
+    }
     
+    if not session:
+        session = create_session_with_retries()
+        
     try:
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()  # 检查HTTP状态码
-        
-        data = response.json()
-        
-        if "date" in data and "news" in data:
-            return {
-                "date": data["date"],
-                "news": data["news"]
-            }
-        else:
-            return "响应中缺少日期或新闻字段"
-            
+        response = session.get(url, headers=headers, timeout=timeout)
+        response.raise_for_status()
+        return response.json()
     except requests.exceptions.RequestException as e:
-        return f"请求失败: {e}"
+        return f"请求失败: {str(e)}"
     except ValueError as e:
-        return f"JSON解析失败: {e}"
+        return f"JSON解析失败: {str(e)}"
 
 def get_news_with_date():
-    # 修改API URL
-    url = "https://60s-api-cf.viki.moe/v2/60s"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()  # 检查HTTP状态码
+    """获取新闻，尝试多个API作为备选"""
+    # API列表，第一个失败会尝试第二个
+    api_list = [
+        "https://60s-api-cf.viki.moe/v2/60s",
+        "http://api.suxun.site/api/sixs?type=json"
+    ]
+    
+    session = create_session_with_retries(max_retries=2, backoff_factor=2)
+    
+    for api_url in api_list:
+        print(f"尝试从API获取新闻: {api_url}")
+        result = fetch_news_from_api(api_url, session)
         
-        data = response.json()
-        
-        if "data" in data and "date" in data["data"] and "news" in data["data"] and "day_of_week" in data["data"]:
-            # 拼接日期和星期
-            date_with_week = f"{data['data']['date']} {data['data']['day_of_week']}"
-            news_with_order = []
-            for index, news_item in enumerate(data["data"]["news"], 1):
-                news_with_order.append(f"{index}. {news_item}")
-            return {
-                "date": date_with_week,
-                "news": news_with_order
-            }
-        else:
-            return "响应中缺少日期、新闻或星期字段"
+        # 如果是错误消息，尝试下一个API
+        if isinstance(result, str):
+            print(f"API {api_url} 失败: {result}")
+            # 切换API前等待一段时间
+            time.sleep(2)
+            continue
             
-    except requests.exceptions.RequestException as e:
-        return f"请求失败: {e}"
-    except ValueError as e:
-        return f"JSON解析失败: {e}"
+        # 处理第一个API的响应格式
+        if api_url == api_list[0]:
+            if "data" in result and "date" in result["data"] and "news" in result["data"] and "day_of_week" in result["data"]:
+                date_with_week = f"{result['data']['date']} {result['data']['day_of_week']}"
+                news_with_order = [f"{i+1}. {item}" for i, item in enumerate(result["data"]["news"])]
+                return {"date": date_with_week, "news": news_with_order}
+            else:
+                print(f"API {api_url} 响应格式不正确")
+                continue
+                
+        # 处理第二个API的响应格式
+        if api_url == api_list[1]:
+            if "date" in result and "news" in result:
+                # 尝试获取星期信息（如果有的话）
+                day_of_week = result.get("day_of_week", "")
+                date_with_week = f"{result['date']} {day_of_week}".strip()
+                return {"date": date_with_week, "news": result["news"]}
+            else:
+                print(f"API {api_url} 响应格式不正确")
+                continue
+    
+    # 所有API都失败
+    return "所有API都无法获取新闻数据"
 
-# 使用示例
 if __name__ == "__main__":
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    font_path = os.path.join(BASE_DIR,'html2img', 'tool', 'font', 'SourceHanSansSC-VF.ttf')
+    font_path = os.path.join(BASE_DIR, 'html2img', 'tool', 'font', 'SourceHanSansSC-VF.ttf')
     wkhtmltoimage_path = "/usr/local/bin/wkhtmltoimage"
+    
+    # 验证wkhtmltoimage路径是否存在
+    if not os.path.exists(wkhtmltoimage_path):
+        print(f"错误: 未找到wkhtmltoimage，路径: {wkhtmltoimage_path}")
+        exit(1)
+    
+    # 验证字体文件是否存在
+    if not os.path.exists(font_path):
+        print(f"错误: 未找到字体文件，路径: {font_path}")
+        exit(1)
+    
+    # 创建输出目录（如果不存在）
+    output_dir = os.path.join(BASE_DIR, 'html2img', 'output')
+    os.makedirs(output_dir, exist_ok=True)
+    
     hti = HtmlToImage(wkhtmltoimage_path=wkhtmltoimage_path)
 
-    result = get_news_with_date()
+    # 最多尝试3次获取新闻
+    max_attempts = 3
+    attempt = 1
+    result = None
     
-    # if isinstance(result, dict):
-    #     print(f"📅 日期：{result['date']}\n")
-    #     for index, news_item in enumerate(result["news"], 1):
-    #         print(f"{news_item}")
-    # else:
-    #     print(result)  # 输出错误信息
+    while attempt <= max_attempts and (result is None or not isinstance(result, dict)):
+        print(f"第 {attempt} 次尝试获取新闻...")
+        result = get_news_with_date()
+        
+        if not isinstance(result, dict):
+            print(f"获取新闻失败: {result}")
+            if attempt < max_attempts:
+                print(f"{5 * attempt}秒后重试...")
+                time.sleep(5 * attempt)  # 指数退避等待
+            attempt += 1
+    
+    # 生成图片文件名
+    current_time = datetime.now().strftime("%Y-%m-%d")
+    target_name = f"zb_{current_time}.png"
+    target_path = os.path.join(output_dir, target_name)
 
-    # target_name = f"zb_{result['date'][:10]}.png"        # 目标文件/文件夹名
-    if isinstance(result, dict) and "date" in result:
-        # 截取前10位确保日期格式（如2025-06-29）
-        date_str = result["date"][:10]
-        target_name = f"zb_{date_str}.png"
-    else:
-        # 异常情况使用UUID避免文件名重复
-        target_name = f"zb_error_{uuid.uuid4().hex[:8]}.png"
-        print(f"警告：无效的结果格式，使用默认文件名 {target_name}")
-    target_path = os.path.join(BASE_DIR, 'html2img', 'output', target_name)
-    # 判断是否已经生成
+    # 首先检查本地是否已有当日图片
     if os.path.exists(target_path):
-        print(target_path)
+        print(f"本地已存在当日图片: {target_path}")
+        exit(0)  # 直接退出，无需继续执行
+    
+    if isinstance(result, dict):
+        try:
+            # 拼接文本
+            date_line = f" 日期：{result['date']}\n"
+            news_lines = "\n".join(result['news'])
+            full_text = f"{date_line}\n{news_lines}\nsheetung"
 
-    elif isinstance(result, dict):
-        # 拼接文本
-        date_line = f"📅 日期：{result['date']}\n"
-        news_lines = "\n".join(result['news'])
-        full_text = f"{date_line}\n{news_lines}\nsheetung"
-
-        # 生成图片
-        image_path = hti.convert_text_to_image(
-            text=full_text,
-            width=1080,
-            font_path=font_path,
-            img_name = target_name,
-            background="#f5f5f5",
-            border_radius="35px",
-            horizontal_padding=40
-        )
-        print(image_path)
+            # 生成图片
+            image_path = hti.convert_text_to_image(
+                text=full_text,
+                width=1080,
+                font_path=font_path,
+                img_name=target_name,
+                background="#f5f5f5",
+                border_radius="35px",
+                horizontal_padding=40
+            )
+            print(f"图片生成成功: {image_path}")
+        except Exception as e:
+            print(f"生成图片时出错: {str(e)}")
     else:
-        print("新闻获取失败:", result)
+        print("最终失败: 无法获取有效的新闻数据")
