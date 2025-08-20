@@ -27,7 +27,8 @@ class MyPlugin(BasePlugin):
             '天气': { 'enable': False, 'dftcmd': '贵阳', 'prompt': '天气查询结果', 'summary': '天气信息', 'source': '天气查询', 'user_id': '1048643088', 'nickname': '天气小助手', 'mode': 'multi' },
             '贤者模式': { 'enable': False, 'dftcmd': 'off', 'prompt': '', 'summary': '', 'source': '', 'user_id': '', 'nickname': '', 'mode': '' },
             '热搜': { 'enable': True, 'dftcmd': 'off', 'prompt': '微博热搜榜', 'summary': '微博热搜榜', 'source': '微博热搜榜', 'user_id': '1048643088', 'nickname': '追热点的沙耶香', 'mode': '' },
-            '猫眼': { 'enable': True, 'dftcmd': 'off', 'prompt': '猫眼票房排行榜', 'summary': '猫眼票房排行榜', 'source': '猫眼票房排行榜', 'user_id': '1048643088', 'nickname': '猫眼沙耶香', 'mode': '' }
+            '猫眼': { 'enable': True, 'dftcmd': 'off', 'prompt': '猫眼票房排行榜', 'summary': '猫眼票房排行榜', 'source': '猫眼票房排行榜', 'user_id': '1048643088', 'nickname': '猫眼沙耶香', 'mode': '' },
+            '搜': { 'enable': True, 'dftcmd': ' ', 'prompt': 'bt资源结果', 'summary': '最新', 'source': 'BT小助手', 'user_id': '1048643088', 'nickname': 'BT小助手', 'mode': 'multi' }
         }
         
         # 扫描func目录获取所有可用命令（脚本名）

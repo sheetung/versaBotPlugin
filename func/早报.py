@@ -152,6 +152,7 @@ if __name__ == "__main__":
             )
             print(f"图片生成成功: {image_path}")
         except Exception as e:
-            print(f"生成图片时出错: {str(e)}")
+            # print(f"生成图片时出错: {str(e)}")
+            print(f'【早报】功能请求失败，重试或者联系管理员吧喵~')
     else:
-        print("最终失败: 无法获取有效的新闻数据")
+        print("请求失败哦，无法获取有效的新闻数据，重试或者联系管理员吧喵~")
