@@ -141,6 +141,7 @@ def main():
         print('\n---\n')
     else:
         print(f"共找到包含{keyword}的 {len(matched_products)} 个匹配产品，更多流量卡请到页面店铺查询:https://172.lot-ml.com/ProductEn/Index/3abcd2e80b9b4694")
+        print(f'命令详情：\n流量卡<$元> 例如：流量卡9元\n流量卡<省> 例如：流量卡广东')
         print('\n---\n')
         
         # 提取并展示详细信息
